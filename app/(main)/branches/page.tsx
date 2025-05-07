@@ -64,7 +64,7 @@ const branches = [
     id: 5,
     name: "Milton High School",
     image: "/images/milton.jpg",
-    phone: "TBH",
+    phone: "TBA",
     address: "13025 Birmingham Hwy, Milton, GA 30004",
     email: "info@chattahoocheehs.edu",
     volunteers: 0,

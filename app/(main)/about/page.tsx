@@ -168,7 +168,7 @@ export default function AboutPage() {
               <div className="space-y-4">
                 <p className="text-gray-600">
                   Students can join our non-profit through their school's branch. If your school doesn't have a branch,
-                  email us, and we'll help start one!
+                  fill out the form below, and we'll help start one!
                 </p>
                 <p className="text-gray-600">
                   Members earn volunteer hours, PVSAs, and a digitally signed PDF from our co-founders verifying their

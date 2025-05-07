@@ -31,7 +31,7 @@ export default function CrewPage() {
       <section className="relative">
         <div className="absolute inset-0 bg-gradient-to-r from-teal-900/80 to-teal-700/80 z-10" />
         <div className="relative h-[300px] w-full">
-          <Image src="/images/group_pic2.jpeg" alt="Our Crew" fill className="object-cover" />
+        <Image src="/images/group_pic2.jpeg" alt="Our Crew" fill className="object-cover" />
         </div>
         <div className="absolute inset-0 z-20 flex items-center justify-center">
           <div className="container px-4 md:px-6">

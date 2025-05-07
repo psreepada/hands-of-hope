@@ -6,11 +6,9 @@ import { Card } from "@/components/ui/card"
 import { Heart, Users, Calendar, Award, DollarSign, MapPin } from "lucide-react"
 import ImpactCounter from "@/components/impact-counter"
 import TestimonialSlider from "@/components/testimonial-slider"
-import { useState } from "react"
 import { useDonationModal } from "@/components/DonationModalProvider"
 
 export default function Home() {
-  const [showDonate, setShowDonate] = useState(false)
   const { open } = useDonationModal()
 
   return (
@@ -59,44 +57,13 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Donation Modal */}
-      {showDonate && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-          <div className="bg-white rounded-lg shadow-lg p-6 relative flex flex-col items-center">
-            <button
-              className="absolute top-2 right-2 text-gray-500 hover:text-gray-800 text-4xl font-bold rounded-full p-2 transition-colors focus:outline-none focus:ring-2 focus:ring-teal-400"
-              style={{ minWidth: 48, minHeight: 48 }}
-              onClick={() => setShowDonate(false)}
-              aria-label="Close"
-            >
-              &times;
-            </button>
-            <iframe
-              src="https://hcb.hackclub.com/donations/start/hands-of-hope"
-              style={{ border: 'none' }}
-              name="donateFrame"
-              scrolling="yes"
-              frameBorder="0"
-              marginHeight={0}
-              marginWidth={0}
-              height="512px"
-              width="512px"
-              allowFullScreen
-              title="Donate to Hands of Hope"
-            ></iframe>
-          </div>
-        </div>
-      )}
-
       {/* Mission Statement */}
       <section className="py-16 bg-white">
         <div className="container px-4 md:px-6">
           <div className="max-w-3xl mx-auto text-center space-y-6">
             <h2 className="text-3xl font-bold tracking-tight text-teal-800">Our Mission</h2>
             <p className="text-xl text-gray-700 leading-relaxed">
-              We are a student-led nonprofit organization dedicated to uplifting and empowering the homeless. By
-              collaborating with local shelters and community members, we are taking action to provide food, resources,
-              and most importantly, hope to those in need.
+            At Hands of Hope, we empower high school students to create meaningful connections and lasting impact in their communities through volunteering, kit-packing initiatives, and fundraising efforts.
             </p>
           </div>
         </div>

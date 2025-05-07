@@ -24,7 +24,7 @@ export default function Footer() {
               action.
             </p>
             <div className="flex gap-4">
-              <Link href="#" className="text-white hover:text-yellow-400 transition-colors">
+              <Link href="https://www.instagram.com/handsofhopeoutreach" className="text-white hover:text-yellow-400 transition-colors">
                 <Instagram className="h-5 w-5" />
                 <span className="sr-only">Instagram</span>
               </Link>
@@ -84,8 +84,8 @@ export default function Footer() {
             <h3 className="text-lg font-bold mb-4">Contact Us</h3>
             <ul className="space-y-3">
               <li className="flex items-center gap-3">
-                <Phone className="h-5 w-5 text-yellow-400" />
-                <span className="text-teal-100">phone</span>
+                <Phone className="h-5 w-5 text-yellow-400" /> 
+                <span className="text-teal-100">(404)-992-4320</span>
               </li>
               <li className="flex items-center gap-3">
                 <Mail className="h-5 w-5 text-yellow-400" />
