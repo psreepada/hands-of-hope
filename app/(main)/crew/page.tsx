@@ -3,12 +3,12 @@ import { Card } from "@/components/ui/card"
 
 const crew = [
   {
-    name: "Pranav",
+    name: "Pranav Sreepada",
     position: "CTO",
     image: "/images/pranav.jpg",
   },
   {
-    name: "Abhishek",
+    name: "Abhinav Lavu",
     position: "CFO",
     image: undefined,
   },
@@ -27,7 +27,6 @@ const crew = [
 export default function CrewPage() {
   return (
     <div className="flex min-h-screen flex-col">
-      {/* Hero Section */}
       <section className="relative">
         <div className="absolute inset-0 bg-gradient-to-r from-teal-900/80 to-teal-700/80 z-10" />
         <div className="relative h-[300px] w-full">
