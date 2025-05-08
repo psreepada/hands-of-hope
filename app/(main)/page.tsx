@@ -63,7 +63,7 @@ export default function Home() {
           <div className="max-w-3xl mx-auto text-center space-y-6">
             <h2 className="text-3xl font-bold tracking-tight text-teal-800">Our Mission</h2>
             <p className="text-xl text-gray-700 leading-relaxed">
-            At Hands of Hope, we empower high school students to create meaningful connections and lasting impact in their communities through volunteering, kit-packing initiatives, and fundraising efforts.
+            At Hands of Hope, we strive to provide high school students with the opportunity to empower the homeless and the people in need through dedicated in-person volunteer efforts, fundraisers, and kit-packing events sponsered by our organization, as well as rewarding them with an awards ceremony to recognize their efforts.
             </p>
           </div>
         </div>
