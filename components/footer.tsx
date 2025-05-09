@@ -69,7 +69,7 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="#" onClick={e => { e.preventDefault(); open(); }} className="text-teal-100 hover:text-yellow-400 transition-colors">
+                <Link href="/donate" className="text-teal-100 hover:text-yellow-400 transition-colors">
                   Donate
                 </Link>
               </li>

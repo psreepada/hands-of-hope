@@ -44,14 +44,12 @@ export default function Navbar() {
             >
               About
             </Link>
-            <a
-              href="https://hcb.hackclub.com/donations/start/hands-of-hope"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-teal-800 font-medium hover:text-teal-600 transition-colors"
+            <Link
+              href="/donate"
+              className={`transition-colors ${isActive('/donate') ? 'text-yellow-500 font-medium' : 'text-teal-800 font-medium hover:text-teal-600'}`}
             >
               Donate
-            </a>
+            </Link>
             <Link 
               href="/branches" 
               className={`transition-colors ${isActive('/branches') ? 'text-yellow-500 font-medium' : 'text-teal-800 font-medium hover:text-teal-600'}`}
@@ -94,15 +92,13 @@ export default function Navbar() {
             >
               About
             </Link>
-            <a
-              href="https://hcb.hackclub.com/donations/start/hands-of-hope"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-teal-800 font-medium hover:text-teal-600 transition-colors block"
+            <Link
+              href="/donate"
+              className={`py-2 transition-colors ${isActive('/donate') ? 'text-yellow-500 font-medium' : 'text-teal-800 font-medium hover:text-teal-600'}`}
               onClick={toggleMenu}
             >
               Donate
-            </a>
+            </Link>
             <Link
               href="/branches"
               className={`py-2 transition-colors ${isActive('/branches') ? 'text-yellow-500 font-medium' : 'text-teal-800 font-medium hover:text-teal-600'}`}

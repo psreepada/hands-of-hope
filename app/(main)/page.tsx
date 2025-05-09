@@ -8,6 +8,7 @@ import ImpactCounter from "@/components/impact-counter"
 import TestimonialSlider from "@/components/testimonial-slider"
 import { useDonationModal } from "@/components/DonationModalProvider"
 import SponsorCarousel from "@/components/sponsor-carousel"
+import Link from "next/link"
 
 export default function Home() {
   const { open } = useDonationModal()
@@ -46,11 +47,13 @@ export default function Home() {
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button
+                  asChild
                   size="lg"
                   className="bg-yellow-500 hover:bg-yellow-600 text-black font-bold"
-                  onClick={open}
                 >
-                  Donate Now
+                  <Link href="/donate">
+                    Donate Now
+                  </Link>
                 </Button>
               </div>
             </div>

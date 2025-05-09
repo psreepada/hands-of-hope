@@ -241,13 +241,9 @@ export default function AboutPage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button asChild size="lg" className="bg-teal-600 hover:bg-teal-700">
-                <a
-                  href="https://hcb.hackclub.com/donations/start/hands-of-hope"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
+                <Link href="/donate">
                   Donate
-                </a>
+                </Link>
               </Button>
               <Button
                 asChild

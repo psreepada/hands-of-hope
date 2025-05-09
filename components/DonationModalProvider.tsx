@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, ReactNode } from "react";
+import { useRouter } from "next/navigation";
 
 const DonationModalContext = createContext<{
   open: () => void;
@@ -14,8 +15,10 @@ export function useDonationModal() {
 }
 
 export function DonationModalProvider({ children }: { children: ReactNode }) {
+  const router = useRouter();
+
   const openDonationPage = () => {
-    window.open("https://hcb.hackclub.com/donations/start/hands-of-hope", "_blank", "noopener,noreferrer");
+    router.push("/donate");
   };
 
   return (
