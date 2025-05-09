@@ -7,6 +7,7 @@ import { Heart, Users, Calendar, Award, DollarSign, MapPin } from "lucide-react"
 import ImpactCounter from "@/components/impact-counter"
 import TestimonialSlider from "@/components/testimonial-slider"
 import { useDonationModal } from "@/components/DonationModalProvider"
+import SponsorCarousel from "@/components/sponsor-carousel"
 
 export default function Home() {
   const { open } = useDonationModal()
@@ -99,7 +100,7 @@ export default function Home() {
               <div className="rounded-full bg-teal-100 w-16 h-16 flex items-center justify-center mx-auto mb-4">
                 <Award className="h-8 w-8 text-teal-600" />
               </div>
-              <h3 className="text-xl font-bold text-teal-800 mb-2">Service Awards</h3>
+              <h3 className="text-xl font-bold text-teal-800 mb-2">PVSA Awards</h3>
               <p className="text-gray-600">Earn recognition for your commitment to community service.</p>
             </Card>
             <Card className="p-6 text-center hover:shadow-lg transition-shadow border-2 border-teal-100 hover:border-teal-200">
@@ -117,6 +118,19 @@ export default function Home() {
               <p className="text-gray-600">Find flexible opportunities that fit your schedule and location.</p>
             </Card>
           </div>
+        </div>
+      </section>
+
+      {/* Sponsors Section */}
+      <section className="py-16 bg-gradient-to-r from-teal-50 to-teal-100">
+        <div className="max-w-3xl mx-auto text-center mb-12 px-4 md:px-6">
+          <h2 className="text-3xl font-bold tracking-tight text-teal-800 mb-4">Our Partners</h2>
+          <p className="text-lg text-gray-600">
+            We are proud to work with these amazing organizations and schools to make a difference in our community.
+          </p>
+        </div>
+        <div className="w-full">
+          <SponsorCarousel />
         </div>
       </section>
 

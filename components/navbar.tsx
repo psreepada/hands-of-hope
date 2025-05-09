@@ -5,12 +5,18 @@ import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Menu, X } from "lucide-react"
+import { usePathname } from "next/navigation"
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const pathname = usePathname()
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen)
+  }
+
+  const isActive = (path: string) => {
+    return pathname === path
   }
 
   return (
@@ -26,28 +32,42 @@ export default function Navbar() {
             </Link>
           </div>
           <nav className="hidden md:flex items-center gap-6">
-            <Link href="/" className="text-teal-800 font-medium hover:text-teal-600 transition-colors">
+            <Link 
+              href="/" 
+              className={`transition-colors ${isActive('/') ? 'text-yellow-500 font-medium' : 'text-teal-800 font-medium hover:text-teal-600'}`}
+            >
               Home
             </Link>
-            <Link href="/about" className="text-teal-800 font-medium hover:text-teal-600 transition-colors">
+            <Link 
+              href="/about" 
+              className={`transition-colors ${isActive('/about') ? 'text-yellow-500 font-medium' : 'text-teal-800 font-medium hover:text-teal-600'}`}
+            >
               About
             </Link>
             <a
               href="https://hcb.hackclub.com/donations/start/hands-of-hope"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-yellow-500 font-bold hover:text-yellow-600 transition-colors"
-              style={{ marginRight: '0.5rem' }}
+              className="text-teal-800 font-medium hover:text-teal-600 transition-colors"
             >
               Donate
             </a>
-            <Link href="/branches" className="text-teal-800 font-medium hover:text-teal-600 transition-colors">
+            <Link 
+              href="/branches" 
+              className={`transition-colors ${isActive('/branches') ? 'text-yellow-500 font-medium' : 'text-teal-800 font-medium hover:text-teal-600'}`}
+            >
               Our Chapters
             </Link>
-            <Link href="/crew" className="text-teal-800 font-medium hover:text-teal-600 transition-colors">
+            <Link 
+              href="/crew" 
+              className={`transition-colors ${isActive('/crew') ? 'text-yellow-500 font-medium' : 'text-teal-800 font-medium hover:text-teal-600'}`}
+            >
               Our Crew
             </Link>
-            <Link href="/contact" className="text-teal-800 font-medium hover:text-teal-600 transition-colors">
+            <Link 
+              href="/contact" 
+              className={`transition-colors ${isActive('/contact') ? 'text-yellow-500 font-medium' : 'text-teal-800 font-medium hover:text-teal-600'}`}
+            >
               Contact
             </Link>
           </nav>
@@ -62,14 +82,14 @@ export default function Navbar() {
           <div className="container mx-auto px-4 py-4 flex flex-col gap-4">
             <Link
               href="/"
-              className="text-teal-800 font-medium py-2 hover:text-teal-600 transition-colors"
+              className={`py-2 transition-colors ${isActive('/') ? 'text-yellow-500 font-medium' : 'text-teal-800 font-medium hover:text-teal-600'}`}
               onClick={toggleMenu}
             >
               Home
             </Link>
             <Link
               href="/about"
-              className="text-teal-800 font-medium py-2 hover:text-teal-600 transition-colors"
+              className={`py-2 transition-colors ${isActive('/about') ? 'text-yellow-500 font-medium' : 'text-teal-800 font-medium hover:text-teal-600'}`}
               onClick={toggleMenu}
             >
               About
@@ -78,29 +98,28 @@ export default function Navbar() {
               href="https://hcb.hackclub.com/donations/start/hands-of-hope"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-yellow-500 font-bold hover:text-yellow-600 transition-colors block"
-              style={{ marginRight: '0.5rem' }}
+              className="text-teal-800 font-medium hover:text-teal-600 transition-colors block"
               onClick={toggleMenu}
             >
               Donate
             </a>
             <Link
               href="/branches"
-              className="text-teal-800 font-medium py-2 hover:text-teal-600 transition-colors"
+              className={`py-2 transition-colors ${isActive('/branches') ? 'text-yellow-500 font-medium' : 'text-teal-800 font-medium hover:text-teal-600'}`}
               onClick={toggleMenu}
             >
               Our Branches
             </Link>
             <Link
               href="/crew"
-              className="text-teal-800 font-medium py-2 hover:text-teal-600 transition-colors"
+              className={`py-2 transition-colors ${isActive('/crew') ? 'text-yellow-500 font-medium' : 'text-teal-800 font-medium hover:text-teal-600'}`}
               onClick={toggleMenu}
             >
               Our Crew
             </Link>
             <Link
               href="/contact"
-              className="text-teal-800 font-medium py-2 hover:text-teal-600 transition-colors"
+              className={`py-2 transition-colors ${isActive('/contact') ? 'text-yellow-500 font-medium' : 'text-teal-800 font-medium hover:text-teal-600'}`}
               onClick={toggleMenu}
             >
               Contact

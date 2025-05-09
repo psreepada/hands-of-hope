@@ -146,6 +146,11 @@ export default function CrewPage() {
                 name: "Orin Adar",
                 role: "Chattahoochee High School Chapter President",
                 image: undefined,
+              },
+              {
+                name: "Devin Kellis",
+                role: "Milton High School Chapter President",
+                image: "/images/devin.jpeg",
               }
             ].map((president) => (
               <Card key={`${president.name}-${president.role}`} className="overflow-hidden border-2 border-teal-100 transition-all duration-200 flex flex-col items-center justify-center py-8 hover:shadow-2xl hover:scale-105 hover:border-teal-500">

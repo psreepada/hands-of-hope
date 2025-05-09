@@ -163,7 +163,7 @@ export default function AboutPage() {
       <section className="py-16 bg-white">
         <div className="container px-4 md:px-6">
           <div className="grid md:grid-cols-2 gap-12 items-center max-w-5xl mx-auto">
-            <div>
+            <div className="text-center md:text-left">
               <h2 className="text-3xl font-bold tracking-tight text-teal-800 mb-4">For Our Students</h2>
               <div className="space-y-4">
                 <p className="text-gray-600">
@@ -214,7 +214,7 @@ export default function AboutPage() {
                 className="object-cover"
               />
             </div>
-            <div className="order-1 md:order-2">
+            <div className="order-1 md:order-2 text-center md:text-left">
               <h2 className="text-3xl font-bold tracking-tight text-teal-800 mb-4">Kits and Events</h2>
               <div className="space-y-4">
                 <p className="text-gray-600">

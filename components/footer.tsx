@@ -95,7 +95,7 @@ export default function Footer() {
           </div>
         </div>
         <div className="border-t border-teal-800 mt-8 pt-8 text-center text-teal-100">
-          <p>© {new Date().getFullYear()} Hands of Hope Outreach. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Hands of Hope Outreach. All rights reserved. Fiscally sponsored by <a href="https://hackclub.com/" target="_blank" rel="noopener noreferrer" className="text-yellow-400 hover:text-yellow-300 transition-colors">Hack Club</a>.</p>
           <p className="mt-2 italic">Website Made Possible by Phoenix Tech Solutions</p>
         </div>
       </div>
