@@ -98,7 +98,7 @@ export default function CrewPage() {
             {crew.map((member) => (
               <Card key={member.name} className="overflow-hidden border-2 border-teal-100 transition-all duration-200 flex flex-col items-center justify-center py-8 hover:shadow-2xl hover:scale-105 hover:border-teal-500">
                 <div className="flex flex-col items-center">
-                  <div className="w-28 h-28 rounded-full bg-teal-100 flex items-center justify-center mb-4 border-2 border-teal-200 overflow-hidden relative">
+                  <div className="w-36 h-36 rounded-full bg-teal-100 flex items-center justify-center mb-4 border-2 border-teal-200 overflow-hidden relative">
                     {member.image ? (
                       <Image src={member.image} alt={member.name} fill className="object-cover rounded-full" style={{objectPosition: 'center'}} />
                     ) : null}
@@ -155,7 +155,7 @@ export default function CrewPage() {
             ].map((president) => (
               <Card key={`${president.name}-${president.role}`} className="overflow-hidden border-2 border-teal-100 transition-all duration-200 flex flex-col items-center justify-center py-8 hover:shadow-2xl hover:scale-105 hover:border-teal-500">
                 <div className="flex flex-col items-center">
-                  <div className="w-28 h-28 rounded-full bg-teal-100 mb-4 border-2 border-teal-200 overflow-hidden relative">
+                  <div className="w-36 h-36 rounded-full bg-teal-100 mb-4 border-2 border-teal-200 overflow-hidden relative">
                     {president.image ? (
                       <Image src={president.image} alt={president.name} fill className="object-cover rounded-full" style={{objectPosition: 'center'}} />
                     ) : null}
