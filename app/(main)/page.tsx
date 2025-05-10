@@ -118,7 +118,7 @@ export default function Home() {
       </section>
 
       {/* PVSA Awards Section */}
-      <section className="py-16 bg-gradient-to-r from-teal-50 to-teal-100">
+      {/* <section className="py-16 bg-gradient-to-r from-teal-50 to-teal-100">
         <div className="container px-4 md:px-6">
           <div className="grid md:grid-cols-2 gap-12 items-start max-w-6xl mx-auto">
             <div className="space-y-6">
@@ -205,7 +205,7 @@ export default function Home() {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* Sponsors Section */}
       <section className="py-16 bg-yellow-50">
