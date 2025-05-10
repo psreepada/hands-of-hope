@@ -114,43 +114,48 @@ export default function CrewPage() {
         </div>
       </section>
 
-      {/* Chapter Presidents Section */}
+      {/* Branch Presidents Section */}
       <section className="py-16 bg-white">
         <div className="container px-4 md:px-6">
           <div className="max-w-4xl mx-auto text-center mb-12">
-            <h2 className="text-3xl font-bold tracking-tight text-teal-800 mb-4">Meet Our Chapter Presidents</h2>
+            <h2 className="text-3xl font-bold tracking-tight text-teal-800 mb-4">Meet Our Branch Presidents</h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
             {[
               {
                 name: "Michael",
-                role: "Innovation Academy Chapter President",
+                role: "Innovation Academy Branch President",
                 image: "/images/micheal.jpg",
               },
               {
                 name: "Arjun Mandalik",
-                role: "Alpharetta High School Chapter President",
+                role: "Alpharetta High School Branch President",
                 image: "/images/arjun.png",
               },
               {
                 name: "Alex Turc",
-                role: "Cambridge High School Chapter Co-President",
+                role: "Cambridge High School Branch Co-President",
                 image: "/images/alex.jpg",
               },
               {
                 name: "Avi Saxena",
-                role: "Cambridge High School Chapter Co-President",
+                role: "Cambridge High School Branch Co-President",
                 image: "/images/avi.jpeg",
               },
               {
                 name: "Orin Adar",
-                role: "Chattahoochee High School Chapter President",
+                role: "Chattahoochee High School Branch President",
                 image: undefined,
               },
               {
                 name: "Devin Kellis",
-                role: "Milton High School Chapter President",
+                role: "Milton High School Branch President",
                 image: "/images/devin.jpeg",
+              },
+              {
+                name: "Adithya Prasana Kumar",
+                role: "Centennial Collegiate Branch President",
+                image: "/images/aditya.jpeg",
               }
             ].map((president) => (
               <Card key={`${president.name}-${president.role}`} className="overflow-hidden border-2 border-teal-100 transition-all duration-200 flex flex-col items-center justify-center py-8 hover:shadow-2xl hover:scale-105 hover:border-teal-500">

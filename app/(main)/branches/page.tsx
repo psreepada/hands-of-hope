@@ -12,11 +12,6 @@ const branches = [
     phone: "(404)-877-8360",
     address: "125 Milton Ave, Alpharetta, GA 30009",
     email: "info@innovationacademy.edu",
-    volunteers: 0,
-    events: 0,
-    meetingDay: "Monday",
-    meetingTime: "3:00 PM",
-    leadTitle: "Chapter President",
   },
   {
     id: 2,
@@ -24,55 +19,35 @@ const branches = [
     image: "/images/cam.webp",
     phone: "(470)-753-1914",
     address: "2845 Bethany Bend, Milton, GA 30004",
-    description:
-      "The Los Angeles branch focuses on food distribution and resource connection for homeless individuals throughout the greater LA area.",
-    leadName: "Sofia Rodriguez",
-    email: "info@cambridgehs.edu",
-    volunteers: 0,
-    events: 0,
-    meetingDay: "Tuesday",
-    meetingTime: "4:00 PM",
-    leadTitle: "Chapter President",
   },
   {
     id: 3,
     name: "Alpharetta High School",
     image: "/images/alpha.avif",
     phone: "(470)-546-0995",
-    address: "3595 Webb Bridge Rd, Alpharetta, GA 30005",
-    email: "info@alpharettahs.edu",
-    volunteers: 0,
-    events: 0,
-    meetingDay: "Wednesday",
-    meetingTime: "2:30 PM",
-    leadTitle: "Chapter President",
+    address: "3595 Webb Bridge Rd, Alpharetta, GA 30005"
   },
   {
     id: 4,
     name: "Chattahoochee High School",
     image: "/images/hooch.webp",
     phone: "(404)-877-8360",
-    address: "5230 Taylor Rd, Johns Creek, GA 30022",
-    email: "info@chattahoocheehs.edu",
-    volunteers: 0,
-    events: 0,
-    meetingDay: "Thursday",
-    meetingTime: "3:30 PM",
-    leadTitle: "Chapter President",
+    address: "5230 Taylor Rd, Johns Creek, GA 30022"
   },
   {
     id: 5,
     name: "Milton High School",
     image: "/images/milton.jpg",
-    phone: "TBA",
-    address: "13025 Birmingham Hwy, Milton, GA 30004",
-    email: "info@chattahoocheehs.edu",
-    volunteers: 0,
-    events: 0,
-    meetingDay: "Thursday",
-    meetingTime: "3:30 PM",
-    leadTitle: "Chapter President",
+    phone: "(470)-213-9803",
+    address: "13025 Birmingham Hwy, Milton, GA 30004"
   },
+  {
+    id: 6,
+    name: "Centennial Collegiate",
+    image: "/images/cent_canada.jpeg",
+    phone: "(639)-480-7689",
+    address: "160 Nelson Rd, Saskatoon, SK S7S 1P5"
+  }
 ]
 
 export default function BranchesPage() {
@@ -93,10 +68,10 @@ export default function BranchesPage() {
           <div className="container px-4 md:px-6">
             <div className="max-w-3xl mx-auto text-center space-y-4">
               <h1 className="text-4xl md:text-5xl font-bold tracking-tighter text-white">
-                Our <span className="text-yellow-400">Chapters</span>
+                Our <span className="text-yellow-400">Branches</span>
               </h1>
               <p className="text-xl text-white/90 max-w-2xl mx-auto">
-                Join one of our local chapters to make a difference in your community
+                Join one of our local branches to make a difference in your community
               </p>
             </div>
           </div>
@@ -107,9 +82,9 @@ export default function BranchesPage() {
       <section className="py-16 bg-white">
         <div className="container px-4 md:px-6">
           <div className="max-w-3xl mx-auto text-center mb-12">
-            <h2 className="text-3xl font-bold tracking-tight text-teal-800 mb-4">Chapter Benefits</h2>
+            <h2 className="text-3xl font-bold tracking-tight text-teal-800 mb-4">Branch Benefits</h2>
             <p className="text-lg text-gray-600">
-              Being part of a Hands of Hope chapter offers numerous benefits for students and communities alike.
+              Being part of a Hands of Hope branch offers numerous benefits for students and communities alike.
             </p>
           </div>
 
@@ -148,16 +123,16 @@ export default function BranchesPage() {
         </div>
       </section>
 
-      {/* Start a Chapter */}
+      {/* Start a Branch */}
       <section className="py-16 bg-gradient-to-r from-teal-50 to-teal-100">
         <div className="container px-4 md:px-6">
           <div className="grid md:grid-cols-2 gap-12 items-center max-w-5xl mx-auto">
             <div>
-              <h2 className="text-3xl font-bold tracking-tight text-teal-800 mb-4">Start a Chapter</h2>
+              <h2 className="text-3xl font-bold tracking-tight text-teal-800 mb-4">Start a Branch</h2>
               <div className="space-y-4">
                 <p className="text-gray-600">
-                  Don't see a chapter in your area? We're always looking to expand our reach and impact. Starting a Hands
-                  of Hope chapter at your school or in your community is easier than you think.
+                  Don't see a branch in your area? We're always looking to expand our reach and impact. Starting a Hands
+                  of Hope branch at your school or in your community is easier than you think.
                 </p>
                 <p className="text-gray-600">
                   We provide all the resources, training, and support you need to get started. You'll join a network of
@@ -173,7 +148,7 @@ export default function BranchesPage() {
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      Start a Chapter
+                      Start a Branch
                     </a>
                   </Button>
                 </div>
@@ -195,7 +170,7 @@ export default function BranchesPage() {
       <section className="py-16 bg-white">
         <div className="container px-4 md:px-6">
           <div className="max-w-3xl mx-auto text-center mb-12">
-            <h2 className="text-3xl font-bold tracking-tight text-teal-800 mb-4">Find Your Local Chapter</h2>
+            <h2 className="text-3xl font-bold tracking-tight text-teal-800 mb-4">Find Your Local Branch</h2>
             <p className="text-lg text-gray-600">
               Hands of Hope has branches across the country, each working to address homelessness in their local
               communities. Find the branch nearest you to get involved.

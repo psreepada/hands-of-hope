@@ -54,7 +54,7 @@ export default function Navbar() {
               href="/branches" 
               className={`transition-colors ${isActive('/branches') ? 'text-yellow-500 font-medium' : 'text-teal-800 font-medium hover:text-teal-600'}`}
             >
-              Our Chapters
+              Our Branches
             </Link>
             <Link 
               href="/crew" 

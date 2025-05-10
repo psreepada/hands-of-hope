@@ -15,13 +15,13 @@ const testimonials = [
     quote:
       "I never thought I would have an opportunity like this, leading a group of volunteers to make a difference is as fun as it is rewarding.",
     author: "Alex Turc",
-    role: "Hands of Hope Cambridge Chapter President",
+    role: "Hands of Hope Cambridge Branch President",
   },
   {
     quote:
       "The work we do at Hands of Hope has an amazing impact on the shelters we volunteer at, I love making a difference.",
     author: "Brendan Bowmen",
-    role: "Hands of Hope IA Chapter Member",
+    role: "Hands of Hope IA Branch Member",
   },
 ]
 

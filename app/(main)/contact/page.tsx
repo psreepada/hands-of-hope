@@ -30,10 +30,11 @@ export default function ContactPage() {
       {/* Contact Section */}
       <section className="py-16 bg-white">
         <div className="container px-4 md:px-6">
-          <div className="flex justify-center">
-            <div className="max-w-xl w-full">
-              <h2 className="text-3xl font-bold tracking-tight text-teal-800 mb-6 text-center">Get in Touch</h2>
-              <p className="text-gray-600 mb-8 text-center">
+          <div className="grid md:grid-cols-2 gap-12 max-w-6xl mx-auto">
+            {/* Contact Information */}
+            <div className="space-y-8">
+              <h2 className="text-3xl font-bold tracking-tight text-teal-800 mb-6">Get in Touch</h2>
+              <p className="text-gray-600">
                 We'd love to hear from you! Whether you're interested in volunteering, donating, or partnering with us,
                 feel free to reach out.
               </p>
@@ -61,7 +62,7 @@ export default function ContactPage() {
                     <h3 className="font-bold text-gray-900">Instagram</h3>
                     <p className="text-gray-600">Follow us on our Journey</p>
                     <a
-                      href="https://instagram.com/handsofhopeoutreach"
+                      href="https://www.instagram.com/handsofhope_outreach?igsh=M2dwam8wYWJ6YjVk&utm_source=qr"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-teal-600 hover:text-teal-700 font-medium inline-flex items-center gap-1 mt-1"
@@ -86,6 +87,53 @@ export default function ContactPage() {
                   </div>
                 </div>
               </div>
+            </div>
+
+            {/* Contact Form */}
+            <div className="bg-white p-8 rounded-lg shadow-lg border border-teal-100">
+              <h2 className="text-2xl font-bold text-teal-800 mb-6">Send us a Message</h2>
+              <form action="https://formsubmit.co/info@handsofhopeoutreach.org" method="POST" className="space-y-6">
+                <div className="space-y-2">
+                  <label htmlFor="name" className="text-sm font-medium text-gray-700">
+                    Name
+                  </label>
+                  <Input
+                    id="name"
+                    name="name"
+                    placeholder="Your name"
+                    className="w-full"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label htmlFor="email" className="text-sm font-medium text-gray-700">
+                    Email
+                  </label>
+                  <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    placeholder="your.email@example.com"
+                    className="w-full"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label htmlFor="message" className="text-sm font-medium text-gray-700">
+                    Message
+                  </label>
+                  <Textarea
+                    id="message"
+                    name="message"
+                    placeholder="Your message here..."
+                    className="w-full min-h-[150px]"
+                    required
+                  />
+                </div>
+                <Button type="submit" className="w-full bg-teal-600 hover:bg-teal-700">
+                  Send Message
+                </Button>
+              </form>
             </div>
           </div>
         </div>

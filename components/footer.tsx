@@ -24,7 +24,7 @@ export default function Footer() {
               action.
             </p>
             <div className="flex gap-4">
-              <Link href="https://www.instagram.com/handsofhopeoutreach" className="text-white hover:text-yellow-400 transition-colors">
+              <Link href="https://www.instagram.com/handsofhope_outreach?igsh=M2dwam8wYWJ6YjVk&utm_source=qr" className="text-white hover:text-yellow-400 transition-colors">
                 <Instagram className="h-5 w-5" />
                 <span className="sr-only">Instagram</span>
               </Link>
@@ -45,7 +45,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link href="/branches" className="text-teal-100 hover:text-yellow-400 transition-colors">
-                  Our Chapters
+                  Our Branches
                 </Link>
               </li>
               <li>
@@ -65,7 +65,7 @@ export default function Footer() {
                   rel="noopener noreferrer"
                   className="text-teal-100 hover:text-yellow-400 transition-colors"
                 >
-                  Start a Chapter
+                  Start a Branch
                 </Link>
               </li>
               <li>
