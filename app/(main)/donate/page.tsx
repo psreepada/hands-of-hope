@@ -82,26 +82,23 @@ export default function DonatePage() {
               <h2 className="text-3xl font-bold tracking-tight text-teal-800">Why Donate?</h2>
               <div className="space-y-4">
                 <p className="text-gray-600">
-                  Your donation helps us maintain and expand our programs, reaching more students and making a greater impact in our community.
-                </p>
-                <p className="text-gray-600">
-                  As a 501(c)(3) nonprofit fiscally sponsored by Hack Club, your contribution is tax-deductible and goes directly to supporting our initiatives.
+                Your donation empowers people in need and students, bringing us one step closer to ending homelessness in the areas it impacts the most. Every dollar makes a difference by helping provide meals and care kits to those who need them most.
                 </p>
                 <div className="pt-4">
                   <Card className="p-6 border-2 border-teal-200 bg-white">
-                    <h3 className="text-xl font-bold text-teal-800 mb-3">What Your Donation Supports:</h3>
+                    <h3 className="text-xl font-bold text-teal-800 mb-3">Donation Benefits:</h3>
                     <ul className="space-y-2 text-gray-600">
                       <li className="flex items-center gap-2">
                         <Award className="h-5 w-5 text-teal-600" />
-                        <span>Student leadership development programs</span>
+                        <span>Tax-deductible contributions</span>
                       </li>
                       <li className="flex items-center gap-2">
                         <Heart className="h-5 w-5 text-teal-600" />
-                        <span>Essential supplies for homeless shelters</span>
+                        <span>Recognition in our annual report</span>
                       </li>
                       <li className="flex items-center gap-2">
                         <School className="h-5 w-5 text-teal-600" />
-                        <span>School supply kits for students in need</span>
+                        <span>Quarterly impact updates</span>
                       </li>
                     </ul>
                   </Card>

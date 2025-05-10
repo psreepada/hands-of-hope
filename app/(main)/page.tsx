@@ -52,7 +52,7 @@ export default function Home() {
                   className="bg-yellow-500 hover:bg-yellow-600 text-black font-bold"
                 >
                   <Link href="/donate">
-                    Donate Now
+                  Donate Now
                   </Link>
                 </Button>
               </div>
