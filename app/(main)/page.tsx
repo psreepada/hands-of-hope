@@ -80,7 +80,7 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <ImpactCounter number={5000} label="Meals Served" icon={<Heart className="h-8 w-8 text-teal-600" />} />
             <ImpactCounter number={1200} label="Volunteer Hours" icon={<Users className="h-8 w-8 text-teal-600" />} />
-            <ImpactCounter number={4000} label="Money Raised" icon={<DollarSign className="h-8 w-8 text-teal-600" />} />
+            <ImpactCounter number={4300} label="Money Raised" icon={<DollarSign className="h-8 w-8 text-teal-600" />} />
           </div>
         </div>
       </section>
@@ -118,11 +118,12 @@ export default function Home() {
       </section>
 
       {/* PVSA Awards Section */}
-      {/* <section className="py-16 bg-gradient-to-r from-teal-50 to-teal-100">
+      <section className="py-16 bg-gradient-to-r from-teal-50 to-teal-100">
         <div className="container px-4 md:px-6">
-          <div className="grid md:grid-cols-2 gap-12 items-start max-w-6xl mx-auto">
-            <div className="space-y-6">
-              <div className="inline-block">
+          <div className="max-w-6xl mx-auto">
+            {/* Header */}
+            <div className="text-center mb-12">
+              <div className="inline-block mb-4">
                 <span className="bg-yellow-100 text-yellow-800 text-sm font-semibold px-3 py-1 rounded-full">
                   Official Recognition
                 </span>
@@ -130,82 +131,54 @@ export default function Home() {
               <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-teal-800">
                 Earn the Prestigious <span className="text-yellow-600">Presidential Volunteer Service Award</span>
               </h2>
+            </div>
+
+            {/* Main Content */}
+            <div className="grid md:grid-cols-2 gap-8">
+              {/* Left Column */}
               <div className="space-y-6">
                 <div className="bg-white p-8 rounded-xl border border-teal-100 shadow-sm">
-                  <h3 className="text-xl font-bold text-teal-800 mb-6">Award Requirements by Age Group</h3>
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-sm md:text-base">
-                      <thead>
-                        <tr>
-                          <th className="text-left py-2 px-2 md:py-3 md:px-4 font-semibold text-teal-800 bg-teal-50 rounded-l-lg whitespace-nowrap">Age Group</th>
-                          <th className="text-center py-2 px-2 md:py-3 md:px-4 font-semibold text-teal-800 bg-teal-50 whitespace-nowrap">Bronze</th>
-                          <th className="text-center py-2 px-2 md:py-3 md:px-4 font-semibold text-teal-800 bg-teal-50 whitespace-nowrap">Silver</th>
-                          <th className="text-center py-2 px-2 md:py-3 md:px-4 font-semibold text-teal-800 bg-teal-50 rounded-r-lg whitespace-nowrap">Gold</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-teal-50">
-                        <tr className="hover:bg-teal-50/50 transition-colors">
-                          <td className="py-2 px-2 md:py-4 md:px-4 text-gray-700 font-medium whitespace-nowrap">Kids (5-10 years)</td>
-                          <td className="text-center py-2 px-2 md:py-4 md:px-4 text-gray-600 whitespace-nowrap">26-49 hours</td>
-                          <td className="text-center py-2 px-2 md:py-4 md:px-4 text-gray-600 whitespace-nowrap">50-74 hours</td>
-                          <td className="text-center py-2 px-2 md:py-4 md:px-4 text-gray-600 whitespace-nowrap">75+ hours</td>
-                        </tr>
-                        <tr className="hover:bg-teal-50/50 transition-colors">
-                          <td className="py-2 px-2 md:py-4 md:px-4 text-gray-700 font-medium whitespace-nowrap">Teens (11-15 years)</td>
-                          <td className="text-center py-2 px-2 md:py-4 md:px-4 text-gray-600 whitespace-nowrap">50-74 hours</td>
-                          <td className="text-center py-2 px-2 md:py-4 md:px-4 text-gray-600 whitespace-nowrap">75-99 hours</td>
-                          <td className="text-center py-2 px-2 md:py-4 md:px-4 text-gray-600 whitespace-nowrap">100+ hours</td>
-                        </tr>
-                        <tr className="hover:bg-teal-50/50 transition-colors">
-                          <td className="py-2 px-2 md:py-4 md:px-4 text-gray-700 font-medium whitespace-nowrap">Young Adults (16-25 years)</td>
-                          <td className="text-center py-2 px-2 md:py-4 md:px-4 text-gray-600 whitespace-nowrap">100-174 hours</td>
-                          <td className="text-center py-2 px-2 md:py-4 md:px-4 text-gray-600 whitespace-nowrap">175-249 hours</td>
-                          <td className="text-center py-2 px-2 md:py-4 md:px-4 text-gray-600 whitespace-nowrap">250+ hours</td>
-                        </tr>
-                        <tr className="hover:bg-teal-50/50 transition-colors">
-                          <td className="py-2 px-2 md:py-4 md:px-4 text-gray-700 font-medium whitespace-nowrap">Adults (26+ years)</td>
-                          <td className="text-center py-2 px-2 md:py-4 md:px-4 text-gray-600 whitespace-nowrap">100-249 hours</td>
-                          <td className="text-center py-2 px-2 md:py-4 md:px-4 text-gray-600 whitespace-nowrap">250-499 hours</td>
-                          <td className="text-center py-2 px-2 md:py-4 md:px-4 text-gray-600 whitespace-nowrap">500+ hours</td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                  <p className="mt-6 text-sm text-gray-500">
-                    * Lifetime Achievement Award requires 4,000+ hours of service for all age groups
+                  <h3 className="text-xl font-bold text-teal-800 mb-4">About the PVSA</h3>
+                  <p className="text-lg text-gray-600 leading-relaxed mb-6">
+                    Hands of Hope is proud to be a certifying organization for the Presidential Volunteer Service Award (PVSA). This prestigious national honor recognizes your commitment to community service and can be a valuable addition to college applications and resumes.
                   </p>
+                  <div className="bg-teal-50 p-6 rounded-lg">
+                    <h4 className="text-lg font-semibold text-teal-800 mb-3">Award Requirements</h4>
+                    <p className="text-gray-600 mb-4">
+                      The Presidential Volunteer Service Award has different hour requirements based on age groups, ranging from 26 hours for younger volunteers to 500+ hours for adults. Contact us to learn more about the specific requirements for your age group.
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      * Lifetime Achievement Award requires 4,000+ hours of service for all age groups
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div className="space-y-8">
-              <div className="bg-white p-8 rounded-xl border border-teal-100 shadow-sm">
-                <h3 className="text-xl font-bold text-teal-800 mb-4">About the PVSA</h3>
-                <p className="text-lg text-gray-600 leading-relaxed">
-                  Hands of Hope is proud to be a certifying organization for the Presidential Volunteer Service Award (PVSA). This prestigious national honor recognizes your commitment to community service and can be a valuable addition to college applications and resumes.
-                </p>
-              </div>
-              <div className="relative h-[400px] rounded-xl overflow-hidden shadow-xl">
-                <Image
-                  src="/images/pvsa.jpg"
-                  alt="Presidential Volunteer Service Award"
-                  fill
-                  className="object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-                  <p className="text-sm font-medium">Official PVSA Certifying Organization</p>
-                  <p className="text-2xl font-bold mt-1">Recognized by the White House</p>
+
+              {/* Right Column */}
+              <div className="space-y-6">
+                <div className="relative h-[400px] rounded-xl overflow-hidden shadow-xl">
+                  <Image
+                    src="/images/pvsa.jpg"
+                    alt="Presidential Volunteer Service Award"
+                    fill
+                    className="object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                  <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
+                    <p className="text-sm font-medium">Official PVSA Certifying Organization</p>
+                    <p className="text-2xl font-bold mt-1">Recognized by the White House</p>
+                  </div>
                 </div>
+                <Button asChild className="w-full bg-teal-600 hover:bg-teal-700">
+                  <Link href="https://presidentialserviceawards.gov/" target="_blank" rel="noopener noreferrer">
+                    Learn More About PVSA
+                  </Link>
+                </Button>
               </div>
-              <Button asChild className="w-full bg-teal-600 hover:bg-teal-700">
-                <Link href="https://presidentialserviceawards.gov/" target="_blank" rel="noopener noreferrer">
-                  Learn More About PVSA
-                </Link>
-              </Button>
             </div>
           </div>
         </div>
-      </section> */}
+      </section>
 
       {/* Sponsors Section */}
       <section className="py-16 bg-yellow-50">

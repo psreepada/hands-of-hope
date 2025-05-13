@@ -121,10 +121,11 @@ export default function DonatePage() {
             </div>
             <div className="bg-white p-6 rounded-lg shadow-lg h-full">
               <h3 className="text-2xl font-bold text-teal-800 mb-6 text-center">Make Your Donation</h3>
-              <div className="h-[calc(100%-4rem)]">
+              <div className="h-auto">
                 <iframe
                   src="https://hcb.hackclub.com/donations/start/hands-of-hope"
-                  className="w-full h-full border-0"
+                  className="w-full border-0"
+                  style={{ minHeight: '600px', width: '100%' }}
                   title="Donation Form"
                 />
               </div>
@@ -132,55 +133,7 @@ export default function DonatePage() {
           </div>
 
           {/* Success Stories Section */}
-          <div className="mt-16">
-            <h2 className="text-3xl font-bold tracking-tight text-teal-800 text-center mb-8">Our Success Stories</h2>
-            <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-              <Card className="p-6 border-2 border-teal-100 hover:border-teal-200 transition-all">
-                <div className="space-y-4">
-                  <p className="text-gray-600 italic">"When I lost my home, Hands of Hope was there with warm meals and essential supplies. Their volunteers treated me with dignity and helped me get back on my feet. Today, I'm in temporary housing and looking for work."</p>
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-full bg-teal-100 flex items-center justify-center">
-                      <Heart className="h-6 w-6 text-teal-600" />
-                    </div>
-                    <div>
-                      <p className="font-semibold text-teal-800">James Wilson</p>
-                      <p className="text-sm text-gray-500">Formerly Homeless</p>
-                    </div>
-                  </div>
-                </div>
-              </Card>
-
-              <Card className="p-6 border-2 border-teal-100 hover:border-teal-200 transition-all">
-                <div className="space-y-4">
-                  <p className="text-gray-600 italic">"The winter care kits from Hands of Hope saved my life during the coldest nights. The blankets and warm clothes they provided made all the difference. Their kindness gave me hope when I needed it most."</p>
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-full bg-teal-100 flex items-center justify-center">
-                      <Heart className="h-6 w-6 text-teal-600" />
-                    </div>
-                    <div>
-                      <p className="font-semibold text-teal-800">Maria Rodriguez</p>
-                      <p className="text-sm text-gray-500">Community Member in Need</p>
-                    </div>
-                  </div>
-                </div>
-              </Card>
-
-              <Card className="p-6 border-2 border-teal-100 hover:border-teal-200 transition-all">
-                <div className="space-y-4">
-                  <p className="text-gray-600 italic">"After losing my job and home, I was struggling to feed my children. Hands of Hope's food assistance program helped us through our toughest times. Their support meant my kids never went to bed hungry."</p>
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-full bg-teal-100 flex items-center justify-center">
-                      <Heart className="h-6 w-6 text-teal-600" />
-                    </div>
-                    <div>
-                      <p className="font-semibold text-teal-800">David Thompson</p>
-                      <p className="text-sm text-gray-500">Single Parent</p>
-                    </div>
-                  </div>
-                </div>
-              </Card>
-            </div>
-          </div>
+          {/* Removed 'Our Success Stories' section as requested */}
         </div>
       </section>
     </div>
