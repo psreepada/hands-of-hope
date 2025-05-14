@@ -58,7 +58,7 @@ export default function CrewPage() {
           <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
             <Card className="overflow-hidden border-2 border-teal-100 hover:border-teal-200 transition-colors">
               <div className="aspect-square relative overflow-hidden">
-                <Image src="/images/gdaksh.JPEG" alt="Daksh Shah" fill className="object-cover" style={{ objectPosition: '60% bottom', transform: 'scale(1.1)' }} />
+                <Image src="/images/daksh_prof.jpeg" alt="Daksh Shah" fill className="object-cover" style={{ objectPosition: '60% bottom', transform: 'scale(1.1)' }} />
               </div>
               <div className="p-6">
                 <h3 className="text-xl font-bold text-teal-800 mb-2">Daksh Shah</h3>
@@ -71,7 +71,7 @@ export default function CrewPage() {
             </Card>
             <Card className="overflow-hidden border-2 border-teal-100 hover:border-teal-200 transition-colors">
               <div className="aspect-square relative">
-                <Image src="/images/gshu.JPEG" alt="Shubham Trivedi" fill className="object-cover"/>
+                <Image src="/images/shu.jpg" alt="Shubham Trivedi" fill className="object-cover"/>
               </div>
               <div className="p-6">
                 <h3 className="text-xl font-bold text-teal-800 mb-2">Shubham Trivedi</h3>
