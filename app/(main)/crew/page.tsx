@@ -23,7 +23,7 @@ const crew = [
   {
     name: "Arthur",
     position: "CMO",
-    image: "/images/arth.jpg",
+    image: "/images/ARTHUR.jpg",
     bio: "Arthur drives our marketing and outreach efforts, helping us connect with more communities and expand our impact."
   },
 ]
