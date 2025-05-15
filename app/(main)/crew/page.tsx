@@ -200,7 +200,7 @@ export default function CrewPage() {
                 image: undefined,
               },
               {
-                name: "Devin Kellis",
+                name: "Devon Kellis",
                 role: "Milton High School Branch President",
                 image: "/images/devin.jpeg",
               },
