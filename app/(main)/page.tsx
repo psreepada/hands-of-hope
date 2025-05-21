@@ -80,7 +80,7 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <ImpactCounter number={5000} label="Meals Served" icon={<Heart className="h-8 w-8 text-teal-600" />} />
             <ImpactCounter number={1200} label="Volunteer Hours" icon={<Users className="h-8 w-8 text-teal-600" />} />
-            <ImpactCounter number={4300} label="Money Raised" icon={<DollarSign className="h-8 w-8 text-teal-600" />} />
+            <ImpactCounter number={8000} label="Money Raised" icon={<DollarSign className="h-8 w-8 text-teal-600" />} />
           </div>
         </div>
       </section>
