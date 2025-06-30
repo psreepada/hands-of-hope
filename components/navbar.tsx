@@ -31,7 +31,7 @@ export default function Navbar() {
               </span>
             </Link>
           </div>
-          <nav className="hidden md:flex items-center gap-6">
+          <nav className="hidden md:flex items-center gap-6 absolute left-1/2 transform -translate-x-1/2">
             <Link 
               href="/" 
               className={`transition-colors ${isActive('/') ? 'text-yellow-500 font-medium' : 'text-teal-800 font-medium hover:text-teal-600'}`}
@@ -69,6 +69,21 @@ export default function Navbar() {
               Contact
             </Link>
           </nav>
+          <div className="hidden md:flex items-center gap-3">
+            <Button 
+              asChild
+              variant="outline"
+              className="border-teal-600 text-teal-800 hover:bg-teal-50"
+            >
+              <Link href="/login">Login</Link>
+            </Button>
+            <Button 
+              asChild
+              className="bg-yellow-500 hover:bg-yellow-600 text-black font-medium"
+            >
+              <Link href="/signup">Sign Up</Link>
+            </Button>
+          </div>
           <button className="md:hidden" onClick={toggleMenu}>
             {isMenuOpen ? <X className="h-6 w-6 text-teal-800" /> : <Menu className="h-6 w-6 text-teal-800" />}
           </button>
@@ -120,6 +135,24 @@ export default function Navbar() {
             >
               Contact
             </Link>
+            
+            <div className="border-t pt-4 mt-2 space-y-3">
+              <Button 
+                asChild
+                variant="outline"
+                className="w-full border-teal-600 text-teal-800 hover:bg-teal-50"
+                onClick={toggleMenu}
+              >
+                <Link href="/login">Login</Link>
+              </Button>
+              <Button 
+                asChild
+                className="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-medium"
+                onClick={toggleMenu}
+              >
+                <Link href="/signup">Sign Up</Link>
+              </Button>
+            </div>
           </div>
         </div>
       )}

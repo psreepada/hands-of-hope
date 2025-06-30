@@ -11,13 +11,13 @@ const crew = [
   {
     name: "Abhinav Lavu",
     position: "CFO",
-    image: undefined,
+    image: "/images/abi.jpg",
     bio: "Abhinav manages our financial operations, ensuring sustainable growth and responsible resource allocation for our programs."
   },
   {
     name: "Jeetu",
     position: "COO",
-    image: "/images/jeetu.jpg",
+    image: "/images/jeetu.jpeg",
     bio: "Jeetu oversees our day-to-day operations, ensuring smooth execution of our programs and initiatives across all branches."
   },
   {
@@ -34,7 +34,7 @@ export default function CrewPage() {
       <section className="relative">
         <div className="absolute inset-0 bg-gradient-to-r from-teal-900/80 to-teal-700/80 z-10" />
         <div className="relative h-[300px] w-full">
-        <Image src="/images/group_pic2.jpeg" alt="Our Crew" fill className="object-cover" />
+        <Image src="/images/awork.jpg" alt="Our Crew" fill className="object-cover" />
         </div>
         <div className="absolute inset-0 z-20 flex items-center justify-center">
           <div className="container px-4 md:px-6">
@@ -55,28 +55,28 @@ export default function CrewPage() {
           <div className="max-w-3xl mx-auto text-center mb-12">
             <h2 className="text-3xl font-bold tracking-tight text-teal-800 mb-4">Meet the Founders</h2>
           </div>
-          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            <Card className="overflow-hidden border-2 border-teal-100 hover:border-teal-200 transition-colors">
-              <div className="aspect-square relative overflow-hidden">
+          <div className="grid md:grid-cols-2 gap-12 max-w-2xl mx-auto">
+            <Card className="overflow-hidden border-2 border-teal-100 hover:border-teal-200 transition-colors max-w-xs mx-auto w-full shadow-sm hover:shadow-md">
+              <div className="relative overflow-hidden max-w-[320px] mx-auto" style={{ aspectRatio: '3/4' }}>
                 <Image src="/images/daksh_prof.jpeg" alt="Daksh Shah" fill className="object-cover" style={{ objectPosition: '60% bottom', transform: 'scale(1.1)' }} />
               </div>
-              <div className="p-6">
+              <div className="p-5 text-center">
                 <h3 className="text-xl font-bold text-teal-800 mb-2">Daksh Shah</h3>
                 <p className="text-lg font-bold text-yellow-500 mb-3">Co-Founder</p>
-                <p className="text-gray-600">
+                <p className="text-gray-600 text-sm">
                   Daksh brings visionary ideas and fosters community connections. His passion for social impact drives
                   Hands of Hope's innovative approach to serving the homeless community.
                 </p>
               </div>
             </Card>
-            <Card className="overflow-hidden border-2 border-teal-100 hover:border-teal-200 transition-colors">
-              <div className="aspect-square relative">
+            <Card className="overflow-hidden border-2 border-teal-100 hover:border-teal-200 transition-colors max-w-xs mx-auto w-full shadow-sm hover:shadow-md">
+              <div className="relative max-w-[320px] mx-auto" style={{ aspectRatio: '3/4' }}>
                 <Image src="/images/shu.jpg" alt="Shubham Trivedi" fill className="object-cover"/>
               </div>
-              <div className="p-6">
+              <div className="p-5 text-center">
                 <h3 className="text-xl font-bold text-teal-800 mb-2">Shubham Trivedi</h3>
                 <p className="text-lg font-bold text-yellow-500 mb-3">Co-Founder</p>
-                <p className="text-gray-600">
+                <p className="text-gray-600 text-sm">
                   Shubham unites the team with strong leadership and organization. His dedication to creating a
                   collaborative space enables meaningful service opportunities for students.
                 </p>
@@ -92,7 +92,7 @@ export default function CrewPage() {
         </div>
       </section>
 
-      {/* Crew Cards Section */}
+      {}
       <section className="py-16 bg-white">
         <div className="container px-4 md:px-6">
           <div className="max-w-4xl mx-auto text-center mb-12">
@@ -121,7 +121,7 @@ export default function CrewPage() {
         </div>
       </section>
 
-      {/* Region Leaders Section */}
+      {}
       <section className="py-16 bg-white">
         <div className="container px-4 md:px-6">
           <div className="max-w-4xl mx-auto text-center mb-12">
@@ -163,7 +163,7 @@ export default function CrewPage() {
         </div>
       </section>
 
-      {/* Branch Presidents Section */}
+      {}
       <section className="py-16 bg-white">
         <div className="container px-4 md:px-6">
           <div className="max-w-4xl mx-auto text-center mb-12">
@@ -182,7 +182,7 @@ export default function CrewPage() {
               {
                 name: "Arjun Mandalik",
                 role: "Alpharetta High School Branch President",
-                image: "/images/arjun.png",
+                image: "/images/arjun.jpeg",
               },
               {
                 name: "Alex Turc",
@@ -196,18 +196,28 @@ export default function CrewPage() {
               },
               {
                 name: "Orin Adar",
-                role: "Chattahoochee High School Branch President",
-                image: undefined,
+                role: "Chattahoochee High School Branch Co-President",
+                image: "/images/orin.jpeg",
               },
               {
                 name: "Devon Kellis",
                 role: "Milton High School Branch President",
-                image: "/images/devin.jpeg",
+                image: "/images/devon.jpeg",
               },
               {
                 name: "Adithya Prasana Kumar",
                 role: "Centennial Collegiate Branch President",
                 image: "/images/aditya.jpeg",
+              },
+              {
+                name: "Dhruv Soni",
+                role: "Aden Bowman Collegiate Branch President",
+                image: "/images/Aden Bowman Collegiate.jpeg",
+              },
+              {
+                name: "Arnav P",
+                role: "Chattahoochee High School Branch Co-President",
+                image: "/images/Chattahooche.jpeg",
               }
             ].map((president) => (
               <Card key={`${president.name}-${president.role}`} className="overflow-hidden border-2 border-teal-100 transition-all duration-200 flex flex-col items-center justify-center py-8 hover:shadow-2xl hover:scale-105 hover:border-teal-500">

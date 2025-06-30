@@ -47,18 +47,25 @@ const branches = [
     image: "/images/cent_canada.jpeg",
     phone: "(639)-480-7689",
     address: "160 Nelson Rd, Saskatoon, SK S7S 1P5"
+  },
+  {
+    id: 7,
+    name: "Aden Bowman Collegiate",
+    image: "/images/ABC.jpg",
+    phone: "(306)-999-0363",
+    address: "1904 Clarence Ave S, Saskatoon, SK S7J 1L3, Canada"
   }
 ]
 
 export default function BranchesPage() {
   return (
     <div className="flex min-h-screen flex-col">
-      {/* Hero Section */}
+      {}
       <section className="relative">
         <div className="absolute inset-0 bg-gradient-to-r from-teal-900/80 to-teal-700/80 z-10" />
         <div className="relative h-[300px] w-full">
           <Image
-            src="/images/group_pic.jpg"
+            src="/images/6.jpg"
             alt="Hands of Hope branches across the country"
             fill
             className="object-cover"
@@ -78,7 +85,7 @@ export default function BranchesPage() {
         </div>
       </section>
 
-      {/* Branch Benefits */}
+      {}
       <section className="py-16 bg-white">
         <div className="container px-4 md:px-6">
           <div className="max-w-3xl mx-auto text-center mb-12">
@@ -123,7 +130,7 @@ export default function BranchesPage() {
         </div>
       </section>
 
-      {/* Start a Branch */}
+      {}
       <section className="py-16 bg-gradient-to-r from-teal-50 to-teal-100">
         <div className="container px-4 md:px-6">
           <div className="grid md:grid-cols-2 gap-12 items-center max-w-5xl mx-auto">
@@ -138,6 +145,13 @@ export default function BranchesPage() {
                   We provide all the resources, training, and support you need to get started. You'll join a network of
                   passionate student leaders making a real difference in their communities.
                 </p>
+                
+                <div className="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded-md">
+                  <p className="text-sm font-medium text-yellow-800">
+                    <span className="font-bold">Note:</span> Becoming a branch leader is a rigorous process and these positions are highly competitive, interview selection is required.
+                  </p>
+                </div>
+                
                 <div className="pt-4">
                   <Button
                     asChild
@@ -148,7 +162,7 @@ export default function BranchesPage() {
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      Start a Branch
+                      Apply to Start a Branch
                     </a>
                   </Button>
                 </div>
@@ -166,13 +180,13 @@ export default function BranchesPage() {
         </div>
       </section>
 
-      {/* Branches Overview */}
+      {}
       <section className="py-16 bg-white">
         <div className="container px-4 md:px-6">
           <div className="max-w-3xl mx-auto text-center mb-12">
             <h2 className="text-3xl font-bold tracking-tight text-teal-800 mb-4">Find Your Local Branch</h2>
             <p className="text-lg text-gray-600">
-              Hands of Hope has branches across the country, each working to address homelessness in their local
+              Hands of Hope has branches across the globe, each working to address homelessness in their local
               communities. Find the branch nearest you to get involved.
             </p>
           </div>

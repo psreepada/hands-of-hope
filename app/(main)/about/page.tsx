@@ -12,12 +12,12 @@ export default function AboutPage() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      {/* Hero Section */}
+      {}
       <section className="relative">
         <div className="absolute inset-0 bg-gradient-to-r from-teal-900/80 to-teal-700/80 z-10" />
         <div className="relative h-[400px] w-full">
           <Image
-            src="/images/pic_about.jpg"
+            src="/images/1.jpg"
             alt="Hands of Hope volunteers working together"
             fill
             className="object-cover"
@@ -38,7 +38,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* What We Do */}
+      {}
       <section className="py-16 bg-gradient-to-r from-teal-50 to-teal-100">
         <div className="container px-4 md:px-6">
           <div className="max-w-3xl mx-auto text-center mb-12">
@@ -84,7 +84,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Our Impact */}
+      {}
       <section className="py-16 bg-white">
         <div className="container px-4 md:px-6">
           <div className="max-w-3xl mx-auto text-center mb-12">
@@ -136,30 +136,42 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Our Vision */}
+      {}
       <section className="py-16 bg-teal-800 text-white">
         <div className="container px-4 md:px-6">
-          <div className="max-w-3xl mx-auto text-center space-y-6">
-            <h2 className="text-3xl font-bold tracking-tight mb-4">Our Vision</h2>
-            <p className="text-xl leading-relaxed">
-              Hands of Hope envisions a future where high school students are empowered through community engagement and
-              volunteerism to support the homeless, foster compassion, and make a lasting impact on the well-being and
-              educational success of those in need.
-            </p>
-            <div className="pt-4">
-              <Button
-                size="lg"
-                className="bg-yellow-500 hover:bg-yellow-600 text-black font-bold"
-                onClick={open}
-              >
-                Contribute to Our Cause
-              </Button>
+          <div className="flex flex-col md:flex-row md:items-center gap-8 max-w-5xl mx-auto">
+            <div className="w-full md:w-1/2 order-2 md:order-1">
+              <div className="relative h-[350px] rounded-lg overflow-hidden shadow-2xl">
+                <Image
+                  src="/images/a.jpg"
+                  alt="Hands of Hope Vision"
+                  fill
+                  className="object-cover"
+                />
+              </div>
+            </div>
+            <div className="w-full md:w-1/2 order-1 md:order-2 space-y-6">
+              <h2 className="text-3xl font-bold tracking-tight">Our Vision</h2>
+              <p className="text-xl leading-relaxed">
+                Hands of Hope envisions a future where high school students are empowered through community engagement and
+                volunteerism to support the homeless, foster compassion, and make a lasting impact on the well-being and
+                educational success of those in need.
+              </p>
+              <div className="pt-4">
+                <Button
+                  size="lg"
+                  className="bg-yellow-500 hover:bg-yellow-600 text-black font-bold"
+                  onClick={open}
+                >
+                  Contribute to Our Cause
+                </Button>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* For Our Students */}
+      {}
       <section className="py-16 bg-white">
         <div className="container px-4 md:px-6">
           <div className="grid md:grid-cols-2 gap-12 items-center max-w-5xl mx-auto">
@@ -190,9 +202,9 @@ export default function AboutPage() {
                 </div>
               </div>
             </div>
-            <div className="relative h-[300px] md:h-[400px] rounded-lg overflow-hidden">
+            <div className="relative h-[400px] md:h-[550px] rounded-lg overflow-hidden">
               <Image
-                src="/images/group_pic2.jpeg"
+                src="/images/kit.jpg"
                 alt="Students volunteering together"
                 fill
                 className="object-cover"
@@ -202,13 +214,13 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Kits and Events */}
+      {}
       <section className="py-16 bg-gradient-to-r from-teal-50 to-teal-100">
         <div className="container px-4 md:px-6">
           <div className="grid md:grid-cols-2 gap-12 items-center max-w-5xl mx-auto">
             <div className="relative h-[300px] md:h-[400px] rounded-lg overflow-hidden order-2 md:order-1">
               <Image
-                src="/images/food_work.jpg"
+                src="/images/3.jpg"
                 alt="Volunteers packing kits for students"
                 fill
                 className="object-cover"
@@ -231,7 +243,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Join Us CTA */}
+      {}
       <section className="py-16 bg-yellow-50">
         <div className="container px-4 md:px-6">
           <div className="max-w-3xl mx-auto text-center space-y-6">

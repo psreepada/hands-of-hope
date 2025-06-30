@@ -13,17 +13,17 @@ export default function DonatePage() {
   const handleCopy = () => {
     navigator.clipboard.writeText("https://hcb.hackclub.com/donations/start/hands-of-hope");
     setCopied(true);
-    setTimeout(() => setCopied(false), 2000); // Reset after 2 seconds
+    setTimeout(() => setCopied(false), 2000); 
   };
 
   return (
     <div className="flex min-h-screen flex-col">
-      {/* Hero Section */}
+      {}
       <section className="relative">
         <div className="absolute inset-0 bg-gradient-to-r from-teal-900/80 to-teal-700/80 z-10" />
         <div className="relative h-[400px] w-full">
           <Image
-            src="/images/donate.jpeg"
+            src="/images/5.jpg"
             alt="Hands of Hope volunteers making an impact"
             fill
             className="object-cover"
@@ -43,7 +43,7 @@ export default function DonatePage() {
         </div>
       </section>
 
-      {/* Impact Section */}
+      {}
       <section className="py-16 bg-white">
         <div className="container px-4 md:px-6">
           <div className="max-w-3xl mx-auto text-center mb-12">
@@ -84,7 +84,7 @@ export default function DonatePage() {
         </div>
       </section>
 
-      {/* Donation Section */}
+      {}
       <section className="py-16 bg-gradient-to-r from-teal-50 to-teal-100">
         <div className="container px-4 md:px-6">
           <div className="grid md:grid-cols-2 gap-12 items-start max-w-5xl mx-auto">
@@ -132,8 +132,8 @@ export default function DonatePage() {
             </div>
           </div>
 
-          {/* Success Stories Section */}
-          {/* Removed 'Our Success Stories' section as requested */}
+          {}
+          {}
         </div>
       </section>
     </div>

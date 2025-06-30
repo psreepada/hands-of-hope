@@ -38,10 +38,22 @@ const sponsors = [
   {
     name: "Aiwyn",
     image: "/images/rotating/aiwyn-logo-2.jpg",
+  },
+  {
+    name: "Milton High School",
+    image: "/images/rotating/mhs.png",
+  },
+  {
+    name: "Aden Bowman Collegiate",
+    image: "/images/rotating/abc.png",
+  },
+  {
+    name: "Centennial Collegiate",
+    image: "/images/rotating/colc.png",
   }
 ]
 
-const AUTOPLAY_INTERVAL = 3000 // 3 seconds
+const AUTOPLAY_INTERVAL = 3000 
 
 export default function SponsorCarousel() {
   const [emblaRef, emblaApi] = useEmblaCarousel({
@@ -61,7 +73,7 @@ export default function SponsorCarousel() {
     if (emblaApi) emblaApi.scrollNext()
   }, [emblaApi])
 
-  // Autoplay functionality
+  
   useEffect(() => {
     if (!emblaApi) return
 
@@ -79,7 +91,7 @@ export default function SponsorCarousel() {
 
     startAutoplay()
 
-    // Pause autoplay when user interacts with the carousel
+    
     const onUserInteraction = () => {
       stopAutoplay()
     }
