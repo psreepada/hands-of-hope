@@ -98,7 +98,14 @@ export default function Footer() {
             </ul>
           </div>
         </div>
-        <div className="border-t border-teal-800 mt-8 pt-8 text-center text-teal-100 bg-teal-950/80 -mx-4 md:-mx-6 px-4 md:px-6 pb-8">
+      </div>
+      
+      {/* Full-width border line */}
+      <div className="border-t border-teal-800"></div>
+      
+      {/* Full-width darker bottom section */}
+      <div className="bg-teal-950/90">
+        <div className="container mx-auto px-4 md:px-6 py-8 text-center text-teal-100">
           <p>© {new Date().getFullYear()} Hands of Hope Outreach. All rights reserved. Fiscally sponsored by <a href="https://hackclub.com/" target="_blank" rel="noopener noreferrer" className="text-yellow-400 hover:text-yellow-300 transition-colors">Hack Club</a>.</p>
           <p className="mt-2 italic">Website Made Possible by Phoenix Tech Solutions</p>
         </div>
