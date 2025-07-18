@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import Image from "next/image"
-import { Facebook, Instagram, Twitter, Mail, Phone, MapPin } from "lucide-react"
+import { Facebook, Instagram, Twitter, Mail, Phone, MapPin, Linkedin } from "lucide-react"
 import { useDonationModal } from "@/components/DonationModalProvider"
 
 export default function Footer() {
@@ -27,6 +27,10 @@ export default function Footer() {
               <Link href="https://www.instagram.com/handsofhope_outreach?igsh=M2dwam8wYWJ6YjVk&utm_source=qr" className="text-white hover:text-yellow-400 transition-colors">
                 <Instagram className="h-5 w-5" />
                 <span className="sr-only">Instagram</span>
+              </Link>
+              <Link href="https://www.linkedin.com/company/hands-of-hope-outreach/?viewAsMember=true" target="_blank" rel="noopener noreferrer" className="text-white hover:text-yellow-400 transition-colors">
+                <Linkedin className="h-5 w-5" />
+                <span className="sr-only">LinkedIn</span>
               </Link>
             </div>
           </div>

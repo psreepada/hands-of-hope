@@ -17,7 +17,7 @@ export default function AboutPage() {
         <div className="absolute inset-0 bg-gradient-to-r from-teal-900/80 to-teal-700/80 z-10" />
         <div className="relative h-[400px] w-full">
           <Image
-            src="/images/1.jpg"
+            src="/images/ABOUTBANNER.png"
             alt="Hands of Hope volunteers working together"
             fill
             className="object-cover"
