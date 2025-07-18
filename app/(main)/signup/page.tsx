@@ -7,26 +7,137 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
-import { Eye, EyeOff, UserPlus, GraduationCap } from "lucide-react"
+import { Eye, EyeOff, UserPlus, GraduationCap, Loader2 } from "lucide-react"
 import { useState } from "react"
+import { useAuthRedirect } from "@/hooks/useAuthRedirect"
+import { useRouter } from "next/navigation"
+import { supabase } from "@/lib/supabase"
+import toast, { Toaster } from 'react-hot-toast'
 
 export default function SignupPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
     email: "",
-    age: "",
+    dateOfBirth: "",
     joinCode: "",
     password: "",
     confirmPassword: ""
   })
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const router = useRouter()
+  
+  // Use auth redirect hook
+  useAuthRedirect()
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Handle signup logic here
-    console.log("Signup attempt:", formData)
+    setIsLoading(true)
+
+    console.log("🚀 Starting signup process with data:", {
+      firstName: formData.firstName,
+      lastName: formData.lastName, 
+      email: formData.email,
+      dateOfBirth: formData.dateOfBirth,
+      joinCode: formData.joinCode
+    })
+
+    // Validation - matching Vite project style
+    if (formData.password.length < 6) {
+      toast.error("Password must be at least 6 characters")
+      setIsLoading(false)
+      return
+    }
+
+    if (formData.joinCode.length !== 6) {
+      toast.error("Branch join code must be 6 digits")
+      setIsLoading(false)
+      return
+    }
+
+    if (!formData.firstName || !formData.lastName || !formData.email || !formData.dateOfBirth || !formData.password || !formData.joinCode) {
+      toast.error("Please fill in all required fields")
+      setIsLoading(false)
+      return
+    }
+
+    try {
+      console.log("🔍 Checking if join code exists:", formData.joinCode)
+      
+      // First check if the join code exists
+      const { data: branch, error: branchError } = await supabase
+        .from('branches')
+        .select('id, name, school_name')
+        .eq('join_code', formData.joinCode)
+        .single()
+
+      if (branchError || !branch) {
+        console.error("❌ Branch lookup failed:", branchError)
+        toast.error("Invalid branch join code. Please check with your branch leader.")
+        setIsLoading(false)
+        return
+      }
+
+      console.log("✅ Found branch:", branch)
+
+      // Sign up the user with Supabase Auth (no email confirmation needed)
+      console.log("🔐 Creating Supabase Auth user...")
+      const { data, error: signUpError } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/login`,
+        },
+      })
+
+      if (signUpError) {
+        console.error("❌ Supabase Auth signup failed:", signUpError)
+        toast.error(signUpError?.message || "Signup failed")
+        setIsLoading(false)
+        return
+      }
+
+      console.log("✅ Supabase Auth user created:", data.user?.id)
+
+      // Insert user into your existing users table with your exact schema
+      const insertPayload = {
+        first_name: formData.firstName,
+        last_name: formData.lastName,
+        email: formData.email,
+        password_hash: '', // Will be empty since we're using Supabase Auth
+        date_of_birth: formData.dateOfBirth,
+        role: 'member', // Default role as requested
+        branch_id: branch.id
+      }
+
+      console.log("💾 Inserting user into database:", insertPayload)
+
+      // Upsert to avoid duplicate rows (matching Vite project pattern)
+      const { data: insertedUser, error: dbError } = await supabase
+        .from("users")
+        .upsert([insertPayload], { onConflict: "email" })
+        .select()
+
+      if (dbError) {
+        console.error("❌ Database insertion failed:", dbError)
+        toast.error("Database error: " + dbError.message)
+        setIsLoading(false)
+        return
+      }
+
+      toast.success(
+        `Registration successful! 🎉\n\nWelcome to ${branch.school_name} - ${branch.name}!\n\nNow please confirm your email by clicking the link in the email we just sent you.`
+      )
+      router.push('/login')
+    } catch (error) {
+      console.error('❌ Unexpected signup error:', error)
+      toast.error("An unexpected error occurred. Please check the console for details.")
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const handleInputChange = (field: string, value: string) => {
@@ -60,7 +171,7 @@ export default function SignupPage() {
 
         {/* Signup Card */}
         <Card className="border-2 border-yellow-100 shadow-xl bg-white/90 backdrop-blur-sm">
-          <CardHeader className="space-y-1 text-center">
+          <CardHeader className="space-y-1 text-center">1
             <CardTitle className="text-2xl text-teal-800 flex items-center justify-center gap-2">
               <UserPlus className="h-6 w-6" />
               Create Account
@@ -119,20 +230,17 @@ export default function SignupPage() {
                 />
               </div>
 
-              {/* Age and Join Code */}
+              {/* Date of Birth and Join Code */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="age" className="text-teal-700 font-medium">
-                    Age
+                  <Label htmlFor="dateOfBirth" className="text-teal-700 font-medium">
+                    Date of Birth
                   </Label>
                   <Input
-                    id="age"
-                    type="number"
-                    placeholder="16"
-                    min="13"
-                    max="25"
-                    value={formData.age}
-                    onChange={(e) => handleInputChange("age", e.target.value)}
+                    id="dateOfBirth"
+                    type="date"
+                    value={formData.dateOfBirth}
+                    onChange={(e) => handleInputChange("dateOfBirth", e.target.value)}
                     className="border-yellow-200 focus:border-yellow-500 focus:ring-yellow-500/20"
                     required
                   />
@@ -188,49 +296,26 @@ export default function SignupPage() {
                   </Button>
                 </div>
               </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="confirmPassword" className="text-teal-700 font-medium">
-                  Confirm Password
-                </Label>
-                <div className="relative">
-                  <Input
-                    id="confirmPassword"
-                    type={showConfirmPassword ? "text" : "password"}
-                    placeholder="Confirm your password"
-                    value={formData.confirmPassword}
-                    onChange={(e) => handleInputChange("confirmPassword", e.target.value)}
-                    className="border-yellow-200 focus:border-yellow-500 focus:ring-yellow-500/20 pr-10"
-                    required
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  >
-                    {showConfirmPassword ? (
-                      <EyeOff className="h-4 w-4 text-gray-500" />
-                    ) : (
-                      <Eye className="h-4 w-4 text-gray-500" />
-                    )}
-                  </Button>
-                </div>
-              </div>
-
-
-
+              
               <Button
                 type="submit"
-                className="w-full bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-black font-semibold py-2.5 transition-all duration-200 shadow-lg hover:shadow-xl"
+                disabled={isLoading}
+                className="w-full bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-black font-semibold py-2.5 transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50"
                 size="lg"
               >
-                <GraduationCap className="h-4 w-4 mr-2" />
-                Create Account
+                {isLoading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Creating Account...
+                  </>
+                ) : (
+                  <>
+                    <GraduationCap className="h-4 w-4 mr-2" />
+                    Create Account
+                  </>
+                )}
               </Button>
             </form>
-
             {/* Social Signup Buttons */}
           </CardContent>
         </Card>
@@ -249,6 +334,7 @@ export default function SignupPage() {
 
         </div>
       </div>
+      <Toaster />
     </div>
   )
 } 
