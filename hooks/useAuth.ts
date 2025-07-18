@@ -6,6 +6,8 @@ export interface AuthUser extends User {
   role?: 'member' | 'branch_leader' | 'admin' | 'super-admin'
   branch_id?: number
   db_id?: number
+  first_name?: string
+  last_name?: string
 }
 
 export const useAuth = () => {
@@ -50,7 +52,7 @@ export const useAuth = () => {
     try {
       const { data: userRecord, error } = await supabase
         .from('users')
-        .select('role, id, branch_id')
+        .select('role, id, branch_id, first_name, last_name')
         .eq('email', authUser.email)
         .single()
 
@@ -77,7 +79,9 @@ export const useAuth = () => {
         ...authUser,
         role: userRecord.role,
         branch_id: userRecord.branch_id,
-        db_id: userRecord.id
+        db_id: userRecord.id,
+        first_name: userRecord.first_name,
+        last_name: userRecord.last_name
       })
     } catch (error) {
       console.error('Error in getUserProfile:', error)

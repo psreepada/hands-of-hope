@@ -886,7 +886,7 @@ export default function DashboardPage() {
               )}
             </h1>
             <p className="text-gray-600 mt-2">
-              Welcome back, {user?.user_metadata?.firstName || user?.email}!
+              Welcome back, {user?.first_name || user?.email?.split('@')[0]}!
             </p>
             {branchInfo && (
               <p className="text-teal-700 font-medium mt-1">
