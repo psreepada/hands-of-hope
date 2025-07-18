@@ -138,7 +138,7 @@ function LoginContent() {
       {/* Background Image */}
       <div className="absolute inset-0 z-0">
         <Image
-          src="/images/gdaksh.JPEG"
+          src="/images/donate.jpeg"
           alt="Background"
           fill
           className="object-cover"
@@ -373,7 +373,7 @@ function LoginLoadingFallback() {
       {/* Background Image */}
       <div className="absolute inset-0 z-0">
         <Image
-          src="/images/gdaksh.JPEG"
+          src="/images/donate.jpeg"
           alt="Background"
           fill
           className="object-cover"

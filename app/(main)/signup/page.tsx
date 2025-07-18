@@ -149,7 +149,7 @@ export default function SignupPage() {
       {/* Background Image */}
       <div className="absolute inset-0 z-0">
         <Image
-          src="/images/gdaksh.JPEG"
+          src="/images/donate.jpeg"
           alt="Background"
           fill
           className="object-cover"
@@ -177,10 +177,10 @@ export default function SignupPage() {
             </div>
           </div>
           <h1 className="text-3xl font-bold text-teal-800">
-            Join Our Mission
+          Student Sign Up
           </h1>
           <p className="text-gray-600 mt-2">
-            Create your <span className="text-yellow-600 font-semibold">Hands of Hope</span> account and start making a difference
+            Create your <span className="text-yellow-600 font-semibold">Hands of Hope</span> account to join our mission and start making a difference.
           </p>
         </div>
 
@@ -196,6 +196,13 @@ export default function SignupPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
+            {/* Important Note */}
+            <div className="mb-6 p-4 bg-teal-50 border border-teal-200 rounded-lg">
+              <p className="text-sm text-teal-700 font-medium">
+                <strong>Note:</strong> To join, you must be a high schooler who is part of a branch in Hands of Hope
+              </p>
+            </div>
+            
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Name Fields */}
               <div className="grid grid-cols-2 gap-4">
@@ -206,7 +213,7 @@ export default function SignupPage() {
                   <Input
                     id="firstName"
                     type="text"
-                    placeholder="John"
+                    placeholder="Daksh"
                     value={formData.firstName}
                     onChange={(e) => handleInputChange("firstName", e.target.value)}
                     className="border-yellow-200 focus:border-yellow-500 focus:ring-yellow-500/20"
@@ -220,7 +227,7 @@ export default function SignupPage() {
                   <Input
                     id="lastName"
                     type="text"
-                    placeholder="Doe"
+                    placeholder="Shah"
                     value={formData.lastName}
                     onChange={(e) => handleInputChange("lastName", e.target.value)}
                     className="border-yellow-200 focus:border-yellow-500 focus:ring-yellow-500/20"

@@ -84,7 +84,7 @@ export default function Home() {
 
       <section className="py-16 bg-gradient-to-r from-teal-50 to-teal-100">
         <div className="container px-4 md:px-6"> 
-          <h2 className="text-3xl font-bold tracking-tight text-center text-teal-800 mb-12">Since Our First Meeting Hands of Hope Has...</h2>
+          <h2 className="text-3xl font-bold tracking-tight text-center text-teal-800 mb-12">Our Impact</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
             <div className="bg-white rounded-xl border-2 border-teal-100 p-6 text-center shadow-md hover:shadow-lg transition-all">
               <div className="rounded-full bg-teal-50 w-16 h-16 flex items-center justify-center mx-auto mb-4">
