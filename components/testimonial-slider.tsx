@@ -7,21 +7,21 @@ import { ChevronLeft, ChevronRight, Quote } from "lucide-react"
 const testimonials = [
   {
     quote:
-      "As long as people are in need, Hands of Hope will be here to lift them up.",
+      "As long as there are people in need, Hands of Hope will be there to lift them up.",
     author: "Daksh Shah",
     role: "Co-Founder",
   },
   {
     quote:
-      "I never thought I would have an opportunity like this, leading a group of volunteers to make a difference is as fun as it is rewarding.",
-    author: "Alex Turc",
-    role: "Hands of Hope Cambridge Branch President",
+      "Receiving the Presidential Volunteer Service Award through Hands of Hope was an honor. It recognized our collective efforts and motivated me to continue serving with passion.",
+    author: "Michael v.",
+    role: "American Region Leader",
   },
   {
     quote:
-      "The work we do at Hands of Hope has an amazing impact on the shelters we volunteer at, I love making a difference.",
-    author: "Brendan Bowmen",
-    role: "Hands of Hope IA Branch Member",
+      "Hands of Hope's collaboration with local schools and organizations brings hope to our streets. Their consistent efforts show that change is possible when the community comes together.",
+    author: "Chad Osgood",
+    role: "Financial Sponsor",
   },
 ]
 
