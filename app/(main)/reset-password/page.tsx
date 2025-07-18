@@ -7,12 +7,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Eye, EyeOff, Lock, Loader2, CheckCircle, AlertTriangle } from "lucide-react"
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { supabase } from "@/lib/supabase"
 import toast, { Toaster } from 'react-hot-toast'
 
-export default function ResetPasswordPage() {
+function ResetPasswordContent() {
   const [newPassword, setNewPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
@@ -355,5 +355,47 @@ export default function ResetPasswordPage() {
       </div>
       <Toaster />
     </div>
+  )
+}
+
+// Loading fallback component
+function ResetPasswordLoadingFallback() {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-yellow-50 flex items-center justify-center p-4">
+      <div className="w-full max-w-md space-y-8">
+        <div className="text-center">
+          <div className="flex justify-center mb-4">
+            <div className="relative">
+              <Image
+                src="/images/logo.png"
+                alt="Hands of Hope Logo"
+                width={80}
+                height={80}
+                className="rounded-full border-4 border-white shadow-lg"
+              />
+              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-teal-500/20 to-yellow-500/20" />
+            </div>
+          </div>
+          <h1 className="text-3xl font-bold text-teal-800">
+            Loading...
+          </h1>
+        </div>
+        <Card className="border-2 border-teal-100 shadow-xl bg-white/90 backdrop-blur-sm">
+          <CardContent className="p-8">
+            <div className="flex justify-center">
+              <Loader2 className="h-8 w-8 animate-spin text-teal-600" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  )
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={<ResetPasswordLoadingFallback />}>
+      <ResetPasswordContent />
+    </Suspense>
   )
 } 
