@@ -3,7 +3,7 @@
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { Heart, Users, Calendar, Award, DollarSign, MapPin } from "lucide-react"
+import { Heart, Users, Calendar, Award, DollarSign, MapPin, School } from "lucide-react"
 import ImpactCounter from "@/components/impact-counter"
 import TestimonialSlider from "@/components/testimonial-slider"
 import { useDonationModal } from "@/components/DonationModalProvider"
@@ -62,7 +62,6 @@ export default function Home() {
         </div>
       </section>
 
-      {}
       <section className="py-16 bg-white relative overflow-hidden">
         {/* Remove decorative geometric elements */}
         
@@ -79,61 +78,6 @@ export default function Home() {
             <p className="text-xl text-gray-700 leading-relaxed relative">
               At Hands of Hope, we strive to provide high school students with the opportunity to empower the homeless and the people in need through dedicated in-person volunteer efforts, fundraisers, and kit-packing events sponsered by our organization, as well as rewarding them with an awards ceremony to recognize their efforts.
             </p>
-          </div>
-          
-          {/* Journey timeline with integrated image */}
-          <div className="relative">
-            {/* Connecting timeline line */}
-            <div className="absolute top-0 bottom-0 left-1/2 w-1 bg-gradient-to-b from-teal-500 to-yellow-500 transform -translate-x-1/2 md:block hidden" />
-            
-            <div className="flex flex-col md:flex-row items-stretch">
-              {/* Image side with perspective tilt effect */}
-              <div className="w-full md:w-1/2 md:pr-12 mb-8 md:mb-0 perspective-1000">
-                <div className="relative h-[450px] w-full rounded-xl overflow-hidden shadow-2xl transform transition-all duration-500 hover:scale-[1.02] hover:shadow-teal-200/30 border-2 border-teal-100">
-                  <div className="absolute inset-0 bg-gradient-to-tr from-teal-900/20 to-transparent z-10" />
-                  <Image
-                    src="/images/pic4.jpg"
-                    alt="Hands of Hope First Meeting"
-                    fill
-                    className="object-cover"
-                  />
-                  {/* Image caption overlay */}
-                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4 transform translate-y-full hover:translate-y-0 transition-transform duration-300">
-                    <p className="text-white/90 text-sm">Our founding members at the very first official meeting</p>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Content side with animated reveal */}
-              <div className="w-full md:w-1/2 md:pl-12 relative">
-                {/* Timeline node */}
-                <div className="absolute left-0 top-0 w-4 h-4 bg-yellow-500 rounded-full transform -translate-x-1/2 md:block hidden" />
-                
-                <div className="bg-gradient-to-br from-teal-50 to-white p-6 md:p-8 rounded-xl border-2 border-teal-100 shadow-lg hover:shadow-xl transition-all duration-300 h-full flex flex-col justify-center relative overflow-hidden">
-                  {/* Remove subtle animated background effect */}
-                  
-                  <div className="relative z-10">
-                    <h2 className="text-3xl font-bold tracking-tight text-teal-800 mb-6">
-                      <span className="relative inline-block after:content-[''] after:absolute after:-bottom-2 after:left-0 after:w-16 after:h-1 after:bg-yellow-500">
-                        Our First Meeting:
-                      </span>
-                    </h2>
-                    <p className="text-xl text-gray-700 leading-relaxed mb-6">
-                      Hands of Hope began humbly with a group of high school students aiming to make a difference in their communities. The picture to the left depicts our first official meeting as a group of passionate high school students working under Hands of Hope. Since our first meeting, Hands of Hope has enabled high school students around the globe to serve their communities by supporting and uplifting the homeless through impactful volunteering.
-                    </p>
-                    
-                    {/* Visual stats indicator */}
-                    <div className="mt-auto flex items-center text-sm text-teal-700 font-medium">
-                      <span className="inline-block w-2 h-2 bg-teal-600 rounded-full mr-2"></span>
-                      <span>Est. 2023</span>
-                      <span className="mx-3">•</span>
-                      <span className="inline-block w-2 h-2 bg-yellow-500 rounded-full mr-2"></span>
-                      <span>18 founding members</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </section>
@@ -211,39 +155,57 @@ export default function Home() {
         </div>
       </section>
 
-      {}
       <section className="py-16 bg-white">
         <div className="container px-4 md:px-6">
-          <h2 className="text-3xl font-bold tracking-tight text-center text-teal-800 mb-12">Join Us For</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="max-w-3xl mx-auto text-center mb-12">
+            <h2 className="text-3xl font-bold tracking-tight text-teal-800 mb-4">Why you should join...</h2>
+            <p className="text-lg text-gray-600">
+              Hands of Hope enables high school students to make a meaningful difference in their communities while
+              developing valuable skills and experiences.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto">
+            <Card className="p-6 text-center hover:shadow-lg transition-shadow border-2 border-teal-100 hover:border-teal-200">
+              <div className="rounded-full bg-teal-100 w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                <Heart className="h-8 w-8 text-teal-600" />
+              </div>
+              <h3 className="text-xl font-bold text-teal-800 mb-2">Support the Homeless</h3>
+              <p className="text-gray-600">
+                Provide direct assistance to homeless individuals through organized volunteer activities and donation
+                drives.
+              </p>
+            </Card>
             <Card className="p-6 text-center hover:shadow-lg transition-shadow border-2 border-teal-100 hover:border-teal-200">
               <div className="rounded-full bg-teal-100 w-16 h-16 flex items-center justify-center mx-auto mb-4">
                 <Calendar className="h-8 w-8 text-teal-600" />
               </div>
-              <h3 className="text-xl font-bold text-teal-800 mb-2">Volunteer Hours</h3>
+              <h3 className="text-xl font-bold text-teal-800 mb-2">Earn Volunteer Hours</h3>
               <p className="text-gray-600">
-                Join our team of dedicated volunteers making a difference in the community.
+                Accumulate service hours that can be applied toward school requirements and college applications.
               </p>
             </Card>
             <Card className="p-6 text-center hover:shadow-lg transition-shadow border-2 border-teal-100 hover:border-teal-200">
               <div className="rounded-full bg-teal-100 w-16 h-16 flex items-center justify-center mx-auto mb-4">
                 <Users className="h-8 w-8 text-teal-600" />
               </div>
-              <h3 className="text-xl font-bold text-teal-800 mb-2">Helping the Community</h3>
-              <p className="text-gray-600">Participate in outreach programs that directly impact those in need.</p>
+              <h3 className="text-xl font-bold text-teal-800 mb-2">Join Fundraisers</h3>
+              <p className="text-gray-600">
+                Participate in fundraising events that directly benefit homeless shelters and support our initiatives.
+              </p>
             </Card>
             <Card className="p-6 text-center hover:shadow-lg transition-shadow border-2 border-teal-100 hover:border-teal-200">
               <div className="rounded-full bg-teal-100 w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <MapPin className="h-8 w-8 text-teal-600" />
+                <School className="h-8 w-8 text-teal-600" />
               </div>
-              <h3 className="text-xl font-bold text-teal-800 mb-2">Convenient Volunteering</h3>
-              <p className="text-gray-600">Find flexible opportunities that fit your schedule and location.</p>
+              <h3 className="text-xl font-bold text-teal-800 mb-2">Kit-Packing Initiative</h3>
+              <p className="text-gray-600">
+                Contribute to our year-end kit-packing event, fostering empathy, engagement, and social responsibility.
+              </p>
             </Card>
           </div>
         </div>
       </section>
 
-      {}
       <section className="py-16 bg-gradient-to-r from-teal-50 to-teal-100">
         <div className="container px-4 md:px-6">
           <div className="max-w-6xl mx-auto">

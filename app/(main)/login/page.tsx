@@ -134,8 +134,23 @@ function LoginContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-yellow-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md space-y-8">
+    <div className="min-h-screen relative flex items-center justify-center p-4">
+      {/* Background Image */}
+      <div className="absolute inset-0 z-0">
+        <Image
+          src="/images/gdaksh.JPEG"
+          alt="Background"
+          fill
+          className="object-cover"
+          priority
+        />
+      </div>
+      
+      {/* Overlay for better readability */}
+      <div className="absolute inset-0 bg-gradient-to-br from-teal-50/90 via-white/85 to-yellow-50/90 z-10" />
+      
+      {/* Content */}
+      <div className="w-full max-w-md space-y-8 relative z-20">
         {/* Logo Section */}
         <div className="text-center">
           <div className="flex justify-center mb-4">
@@ -354,8 +369,23 @@ function LoginContent() {
 // Loading fallback component
 function LoginLoadingFallback() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-yellow-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md space-y-8">
+    <div className="min-h-screen relative flex items-center justify-center p-4">
+      {/* Background Image */}
+      <div className="absolute inset-0 z-0">
+        <Image
+          src="/images/gdaksh.JPEG"
+          alt="Background"
+          fill
+          className="object-cover"
+          priority
+        />
+      </div>
+      
+      {/* Overlay for better readability */}
+      <div className="absolute inset-0 bg-gradient-to-br from-teal-50/90 via-white/85 to-yellow-50/90 z-10" />
+      
+      {/* Content */}
+      <div className="w-full max-w-md space-y-8 relative z-20">
         <div className="text-center">
           <div className="flex justify-center mb-4">
             <div className="relative">

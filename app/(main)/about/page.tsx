@@ -84,59 +84,6 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {}
-      <section className="py-16 bg-white">
-        <div className="container px-4 md:px-6">
-          <div className="max-w-3xl mx-auto text-center mb-12">
-            <h2 className="text-3xl font-bold tracking-tight text-teal-800 mb-4">Why you should join...</h2>
-            <p className="text-lg text-gray-600">
-              Hands of Hope enables high school students to make a meaningful difference in their communities while
-              developing valuable skills and experiences.
-            </p>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto">
-            <Card className="p-6 text-center hover:shadow-lg transition-shadow border-2 border-teal-100 hover:border-teal-200">
-              <div className="rounded-full bg-teal-100 w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <Heart className="h-8 w-8 text-teal-600" />
-              </div>
-              <h3 className="text-xl font-bold text-teal-800 mb-2">Support the Homeless</h3>
-              <p className="text-gray-600">
-                Provide direct assistance to homeless individuals through organized volunteer activities and donation
-                drives.
-              </p>
-            </Card>
-            <Card className="p-6 text-center hover:shadow-lg transition-shadow border-2 border-teal-100 hover:border-teal-200">
-              <div className="rounded-full bg-teal-100 w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <Calendar className="h-8 w-8 text-teal-600" />
-              </div>
-              <h3 className="text-xl font-bold text-teal-800 mb-2">Earn Volunteer Hours</h3>
-              <p className="text-gray-600">
-                Accumulate service hours that can be applied toward school requirements and college applications.
-              </p>
-            </Card>
-            <Card className="p-6 text-center hover:shadow-lg transition-shadow border-2 border-teal-100 hover:border-teal-200">
-              <div className="rounded-full bg-teal-100 w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <Users className="h-8 w-8 text-teal-600" />
-              </div>
-              <h3 className="text-xl font-bold text-teal-800 mb-2">Join Fundraisers</h3>
-              <p className="text-gray-600">
-                Participate in fundraising events that directly benefit homeless shelters and support our initiatives.
-              </p>
-            </Card>
-            <Card className="p-6 text-center hover:shadow-lg transition-shadow border-2 border-teal-100 hover:border-teal-200">
-              <div className="rounded-full bg-teal-100 w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <School className="h-8 w-8 text-teal-600" />
-              </div>
-              <h3 className="text-xl font-bold text-teal-800 mb-2">Kit-Packing Initiative</h3>
-              <p className="text-gray-600">
-                Contribute to our year-end kit-packing event, fostering empathy, engagement, and social responsibility.
-              </p>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      {}
       <section className="py-16 bg-teal-800 text-white">
         <div className="container px-4 md:px-6">
           <div className="flex flex-col md:flex-row md:items-center gap-8 max-w-5xl mx-auto">
