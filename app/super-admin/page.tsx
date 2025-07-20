@@ -76,7 +76,7 @@ export default function SuperAdminPage() {
         // Fetch all branches (limit fields for better performance)
         supabase
           .from('branches')
-          .select('id, name, school_name, location, leader_name, leader_email, created_at, total_hours, total_events, total_users')
+          .select('id, name, school_name, location, leader_name, leader_email, join_code, created_at, total_hours, total_events, total_users')
           .order('created_at', { ascending: false })
           .limit(100), // Limit to 100 branches
 
@@ -468,6 +468,15 @@ export default function SuperAdminPage() {
               </div>
           </div>
             <div className="flex items-center gap-4">
+              <Button 
+                onClick={() => router.push('/dashboard')}
+                variant="outline"
+                size="sm"
+                className="flex items-center gap-2"
+              >
+                <Users className="h-4 w-4" />
+                Back to Dashboard
+              </Button>
               <span className="text-sm text-gray-600">
                 {user?.user_metadata?.firstName || user?.email}
               </span>
@@ -569,9 +578,13 @@ export default function SuperAdminPage() {
                       <h3 className="font-semibold text-gray-800">{branch.name}</h3>
                       <p className="text-sm text-gray-600">{branch.school_name}</p>
                     </div>
-                    <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
-                      {branch.join_code}
-                    </span>
+                    {branch.join_code && (
+                      <div className="text-right">
+                        <span className="text-sm font-mono bg-blue-100 text-blue-800 px-3 py-1 rounded-full border border-blue-200">
+                          {branch.join_code}
+                        </span>
+                      </div>
+                    )}
                   </div>
                   <div className="flex items-center gap-1 text-sm text-gray-600 mb-2">
                     <MapPin className="h-4 w-4" />
