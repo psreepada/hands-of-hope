@@ -395,7 +395,11 @@ export default function AdminPage() {
   const hasActiveFilters = memberSearchQuery.trim() || roleFilter !== "all" || hoursFilter !== "all" || eventsFilter !== "all"
 
   const fetchHourRequests = async () => {
-    if (!user?.branch_id) return
+    if (!user?.branch_id) {
+      console.warn("⚠️ Admin user doesn't have a branch_id for hour requests")
+      setHourRequests([])
+      return
+    }
     
     try {
       console.log("🔍 Fetching hour requests for branch:", user.branch_id)
@@ -623,7 +627,11 @@ export default function AdminPage() {
   })
 
   const fetchBranchData = async () => {
-    if (!user?.branch_id) return
+    if (!user?.branch_id) {
+      console.warn("⚠️ Admin user doesn't have a branch_id")
+      setDataLoading(false)
+      return
+    }
     
     console.log("🔍 Fetching data for branch_id:", user.branch_id)
 
@@ -717,11 +725,70 @@ export default function AdminPage() {
     if (user?.branch_id) {
       fetchBranchData()
       fetchHourRequests()
+    } else if (user && !user.branch_id) {
+      // If user is loaded but doesn't have a branch_id, set loading to false
+      setDataLoading(false)
     }
-  }, [user?.branch_id])
+  }, [user?.branch_id, user])
 
   if (loading || dataLoading) {
     return <AdminSkeleton />
+  }
+
+  // Handle case where admin doesn't have a branch_id
+  if (user && !user.branch_id) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex justify-between items-center mb-8">
+            <div>
+              <h1 className="text-3xl font-bold text-blue-800 flex items-center gap-3">
+                <School className="h-8 w-8" />
+                Branch Admin Dashboard
+              </h1>
+              <p className="text-gray-600 mt-2">Branch management and oversight</p>
+            </div>
+            
+            <div className="flex items-center gap-3">
+              <Button 
+                onClick={() => router.push('/dashboard')}
+                variant="outline"
+                className="flex items-center gap-2"
+              >
+                <Users className="h-4 w-4" />
+                Back to Dashboard
+              </Button>
+              <Button 
+                onClick={handleSignOut}
+                variant="outline"
+                className="flex items-center gap-2"
+              >
+                <LogOut className="h-4 w-4" />
+                Sign Out
+              </Button>
+            </div>
+          </div>
+
+          <Card className="mb-8">
+            <CardContent className="pt-6">
+              <div className="text-center py-12">
+                <Shield className="h-12 w-12 text-red-500 mx-auto mb-4" />
+                <h2 className="text-xl font-semibold text-red-600 mb-2">No Branch Assigned</h2>
+                <p className="text-gray-600 mb-4">
+                  Your admin account is not associated with any branch. Please contact a super admin to assign you to a branch.
+                </p>
+                <Button
+                  onClick={() => router.push('/dashboard')}
+                  className="bg-blue-600 hover:bg-blue-700"
+                >
+                  Return to Dashboard
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    )
   }
 
   return (
