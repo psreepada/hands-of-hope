@@ -11,6 +11,7 @@ import { LogOut, Shield, Users, Building, Calendar, BarChart3, School, X, Plus, 
 import { useState, useEffect, memo } from "react"
 import { supabase } from "@/lib/supabase"
 import { useRouter } from "next/navigation"
+import { AdminSkeleton } from "@/components/ui/skeleton-loader"
 import toast, { Toaster } from 'react-hot-toast'
 
 export default function AdminPage() {
@@ -627,48 +628,76 @@ export default function AdminPage() {
     console.log("🔍 Fetching data for branch_id:", user.branch_id)
 
     try {
-      // Fetch branch information
-      const { data: branch, error: branchError } = await supabase
-        .from('branches')
-        .select('*')
-        .eq('id', user.branch_id)
-        .single()
+      // 🚀 PERFORMANCE OPTIMIZATION: Execute all queries in parallel
+      const [
+        { data: branch, error: branchError },
+        { data: users, error: usersError },
+        { data: events, error: eventsError }
+      ] = await Promise.all([
+        // Fetch branch information
+        supabase
+          .from('branches')
+          .select('id, name, school_name, location, leader_name, leader_email, join_code')
+          .eq('id', user.branch_id)
+          .single(),
 
+        // Fetch users in this branch (limit fields for better performance)
+        supabase
+          .from('users')
+          .select('id, first_name, last_name, email, role, total_hours, total_events_attended, created_at')
+          .eq('branch_id', user.branch_id)
+          .order('created_at', { ascending: false })
+          .limit(100), // Limit to 100 users for better performance
+
+        // Fetch branch events (limit fields and results)
+        supabase
+          .from('events')
+          .select(`
+            id,
+            name,
+            description,
+            event_date,
+            start_time,
+            end_time,
+            location,
+            max_participants,
+            event_type,
+            status,
+            event_signups (
+              id,
+              user_id,
+              signup_status
+            )
+          `)
+          .eq('branch_id', user.branch_id)
+          .order('event_date', { ascending: false })
+          .limit(50) // Limit to 50 events for better performance
+      ])
+
+      // Process branch data
       if (branchError) {
         console.error("❌ Branch fetch error:", branchError)
+        setBranchData(null)
       } else {
         console.log("✅ Branch data:", branch)
         setBranchData(branch)
       }
 
-      // Fetch users in this branch
-      const { data: users, error: usersError } = await supabase
-        .from('users')
-        .select('*')
-        .eq('branch_id', user.branch_id)
-        .order('created_at', { ascending: false })
-
+      // Process users data
       if (usersError) {
         console.error("❌ Users fetch error:", usersError)
+        setBranchUsers([])
+        setTotalHours(0)
       } else {
         console.log("✅ Branch users:", users)
         setBranchUsers(users || [])
+        
+        // Calculate total volunteer hours for this branch
+        const totalBranchHours = (users || []).reduce((sum, user) => sum + (user.total_hours || 0), 0)
+        setTotalHours(totalBranchHours)
       }
 
-      // Fetch branch events (using the same logic as dashboard)
-      const { data: events, error: eventsError } = await supabase
-        .from('events')
-        .select(`
-          *,
-          event_signups (
-            id,
-            user_id,
-            signup_status
-          )
-        `)
-        .eq('branch_id', user.branch_id)
-        .order('event_date', { ascending: false })
-
+      // Process events data
       if (eventsError) {
         console.error("❌ Events fetch error:", eventsError)
         setBranchEvents([])
@@ -676,10 +705,6 @@ export default function AdminPage() {
         console.log("✅ Branch events:", events)
         setBranchEvents(events || [])
       }
-
-      // Calculate total volunteer hours for this branch
-      const totalBranchHours = (users || []).reduce((sum, user) => sum + (user.total_hours || 0), 0)
-      setTotalHours(totalBranchHours)
 
     } catch (error) {
       console.error("❌ Error fetching branch data:", error)
@@ -696,14 +721,7 @@ export default function AdminPage() {
   }, [user?.branch_id])
 
   if (loading || dataLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading branch data...</p>
-        </div>
-      </div>
-    )
+    return <AdminSkeleton />
   }
 
   return (

@@ -15,10 +15,10 @@ const crew = [
     bio: "Abhinav manages our financial operations, ensuring sustainable growth and responsible resource allocation for our programs."
   },
   {
-    name: "Jeetu",
+    name: "Michael",
     position: "COO",
-    image: "/images/jeetu.jpeg",
-    bio: "Jeetu oversees our day-to-day operations, ensuring smooth execution of our programs and initiatives across all branches."
+    image: "/images/micheal.jpg",
+    bio: "Michael oversees our day-to-day operations, ensuring smooth execution of our programs and initiatives across all branches."
   },
   {
     name: "Arthur",
@@ -130,10 +130,10 @@ export default function CrewPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 max-w-4xl mx-auto">
             {[
               {
-                name: "Michael",
+                name: "Jeetu",
                 role: "U.S. Region Leader",
-                image: "/images/micheal.jpg",
-                bio: "Michael leads our U.S. operations, coordinating efforts across multiple branches and ensuring consistent impact across the country."
+                image: "/images/jeetu.jpeg",
+                bio: "Jeetu leads our U.S. operations, coordinating efforts across multiple branches and ensuring consistent impact across the country."
               },
               {
                 name: "Adithya Prasana Kumar",

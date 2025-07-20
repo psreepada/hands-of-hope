@@ -11,6 +11,7 @@ import { LogOut, Shield, Users, Building, BarChart3, School, X, Plus, MapPin, Ch
 import { useState, useEffect } from "react"
 import { supabase } from "@/lib/supabase"
 import { useRouter } from "next/navigation"
+import { SuperAdminSkeleton } from "@/components/ui/skeleton-loader"
 import toast, { Toaster } from 'react-hot-toast'
 
 export default function SuperAdminPage() {
@@ -66,34 +67,48 @@ export default function SuperAdminPage() {
     setDataLoading(true)
     
     try {
-      // Fetch all branches
-      const { data: branches, error: branchesError } = await supabase
-        .from('branches')
-        .select('*')
-        .order('created_at', { ascending: false })
+      // 🚀 PERFORMANCE OPTIMIZATION: Execute all queries in parallel
+      const [
+        { data: branches, error: branchesError },
+        { data: users, error: usersError },
+        { data: allEvents, error: eventsError }
+      ] = await Promise.all([
+        // Fetch all branches (limit fields for better performance)
+        supabase
+          .from('branches')
+          .select('id, name, school_name, location, leader_name, leader_email, created_at, total_hours, total_events, total_users')
+          .order('created_at', { ascending: false })
+          .limit(100), // Limit to 100 branches
 
-      if (branchesError) {
-        console.error("❌ Branches fetch error:", branchesError)
-      }
-
-      // Fetch all users with branch information
-      const { data: users, error: usersError } = await supabase
-        .from('users')
-        .select(`
-          *,
-          branches:branch_id (
+        // Fetch all users with branch information (limit fields and results)
+        supabase
+          .from('users')
+          .select(`
             id,
-            name,
-            school_name,
-            location
-          )
-        `)
-        .order('created_at', { ascending: false })
+            first_name,
+            last_name,
+            email,
+            role,
+            total_hours,
+            total_events_attended,
+            created_at,
+            branch_id,
+            branches:branch_id (
+              id,
+              name,
+              school_name,
+              location
+            )
+          `)
+          .order('created_at', { ascending: false })
+          .limit(500), // Limit to 500 users for better performance
 
-      // Fetch all events to get actual event count
-      const { data: allEvents, error: eventsError } = await supabase
-        .from('events')
-        .select('id, branch_id')
+        // Fetch all events to get actual event count (limit fields)
+        supabase
+          .from('events')
+          .select('id, branch_id, created_at')
+          .limit(1000) // Limit to 1000 events
+      ])
 
       if (usersError) {
         console.error("❌ Users fetch error:", usersError)
@@ -425,14 +440,7 @@ export default function SuperAdminPage() {
   }, [user?.role])
 
   if (loading || dataLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading Super Admin Dashboard...</p>
-        </div>
-      </div>
-    )
+    return <SuperAdminSkeleton />
   }
 
   if (!user || user.role !== 'super-admin') {

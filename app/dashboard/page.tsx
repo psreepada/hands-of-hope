@@ -9,8 +9,9 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { LogOut, User, Calendar, Clock, Award, Settings, MapPin, Users, X, CheckCircle, Plus, Upload, FileImage, AlertTriangle, Edit3, Trash2, ArrowRightLeft, Building2 } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { supabase } from "@/lib/supabase"
+import { DashboardSkeleton } from "@/components/ui/skeleton-loader"
 import toast, { Toaster } from 'react-hot-toast'
 
 export default function DashboardPage() {
@@ -349,50 +350,69 @@ export default function DashboardPage() {
         eventsAttended: userData.total_events_attended || 0
       })
 
-      // Fetch upcoming events for the user's branch
-      const { data: events, error: eventsError } = await supabase
-        .from('events')
-        .select(`
-          *,
-          event_signups (
+      // 🚀 PERFORMANCE OPTIMIZATION: Execute all remaining queries in parallel
+      const [
+        { data: events, error: eventsError },
+        { data: signups, error: signupsError }
+      ] = await Promise.all([
+        // Fetch upcoming events for the user's branch
+        supabase
+          .from('events')
+          .select(`
             id,
-            user_id,
-            signup_status
-          )
-        `)
-        .eq('branch_id', user.branch_id)
-        .eq('status', 'upcoming')
-        .gte('event_date', new Date().toISOString().split('T')[0])
-        .order('event_date', { ascending: true })
+            name,
+            description,
+            event_date,
+            start_time,
+            end_time,
+            location,
+            max_participants,
+            event_type,
+            status,
+            event_signups (
+              id,
+              user_id,
+              signup_status
+            )
+          `)
+          .eq('branch_id', user.branch_id)
+          .eq('status', 'upcoming')
+          .gte('event_date', new Date().toISOString().split('T')[0])
+          .order('event_date', { ascending: true })
+          .limit(20), // Limit to 20 upcoming events for better performance
 
+        // Fetch user's event signups
+        supabase
+          .from('event_signups')
+          .select('id, event_id, signup_status, hours_earned')
+          .eq('user_id', databaseUserId)
+      ])
+
+      // Process events data
       if (eventsError) {
         console.error("❌ Events fetch error:", eventsError)
+        setBranchEvents([])
       } else {
         console.log("✅ Branch events:", events)
         setBranchEvents(events || [])
       }
 
-      // Fetch user's event signups using the database user ID
-      const { data: signups, error: signupsError } = await supabase
-        .from('event_signups')
-        .select('*')
-        .eq('user_id', databaseUserId)
-
+      // Process signups data
       if (signupsError) {
         console.error("❌ Signups fetch error:", signupsError)
+        setUserSignups([])
       } else {
         console.log("✅ User signups:", signups)
         setUserSignups(signups || [])
       }
 
-      // Fetch recent activity
-      await fetchRecentActivity(databaseUserId)
+      // Fetch recent activity (can be done in parallel with UI updates)
+      fetchRecentActivity(databaseUserId)
 
     } catch (error) {
       console.error("❌ Error fetching dashboard data:", error)
     } finally {
       setDataLoading(false)
-      setActivityLoading(false)
     }
   }
 
@@ -400,13 +420,18 @@ export default function DashboardPage() {
     try {
       console.log("📋 Fetching hour request status updates for user:", databaseUserId)
 
-      const activities: any[] = []
-
-      // Fetch all hour requests (pending, approved, or declined) from last 60 days
+      // 🚀 OPTIMIZED: Fetch only required fields and limit results
       const { data: hourRequests, error: hoursError } = await supabase
         .from('hours_requests')
         .select(`
-          *,
+          id,
+          hours_requested,
+          admin_hours_awarded,
+          description,
+          status,
+          created_at,
+          reviewed_at,
+          admin_notes,
           events (
             name,
             event_type
@@ -414,75 +439,79 @@ export default function DashboardPage() {
         `)
         .eq('user_id', databaseUserId)
         .in('status', ['pending', 'approved', 'declined'])
-        .gte('created_at', new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString())
+        .gte('created_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()) // Reduced to 30 days
         .order('created_at', { ascending: false })
-        .limit(10)
+        .limit(8) // Reduced to 8 for better performance
 
-      if (!hoursError && hourRequests) {
-        hourRequests.forEach(hourRequest => {
-          const isApproved = hourRequest.status === 'approved'
-          const isPending = hourRequest.status === 'pending'
-          const isAdjusted = isApproved && hourRequest.admin_hours_awarded !== hourRequest.hours_requested
-          
-          let title, description, icon, color, displayDate
-
-          if (isPending) {
-            title = `${hourRequest.hours_requested} hours pending review`
-            description = hourRequest.events ? 
-              `For ${hourRequest.events.name}` : 
-              hourRequest.description.substring(0, 50) + (hourRequest.description.length > 50 ? '...' : '')
-            icon = 'clock'
-            color = 'blue'
-            displayDate = hourRequest.created_at
-          } else if (isApproved) {
-            if (isAdjusted) {
-              title = `${hourRequest.hours_requested} hours adjusted to ${hourRequest.admin_hours_awarded} hours`
-              description = `Originally requested ${hourRequest.hours_requested} hrs, admin awarded ${hourRequest.admin_hours_awarded} hrs`
-              icon = 'adjust'
-              color = 'yellow'
-            } else {
-              title = `${hourRequest.admin_hours_awarded || hourRequest.hours_requested} volunteer hours approved`
-              description = hourRequest.events ? 
-                `For ${hourRequest.events.name}` : 
-                hourRequest.description.substring(0, 50) + (hourRequest.description.length > 50 ? '...' : '')
-              icon = 'check'
-              color = 'green'
-            }
-            displayDate = hourRequest.reviewed_at
-          } else {
-            title = `${hourRequest.hours_requested} hours declined`
-            description = hourRequest.events ? 
-              `For ${hourRequest.events.name}` : 
-              hourRequest.description.substring(0, 50) + (hourRequest.description.length > 50 ? '...' : '')
-            icon = 'x'
-            color = 'red'
-            displayDate = hourRequest.reviewed_at
-          }
-
-          activities.push({
-            id: `hours_${hourRequest.id}`,
-            type: hourRequest.status,
-            title,
-            description,
-            date: displayDate,
-            icon,
-            color,
-            adminNotes: hourRequest.admin_notes,
-            requestedHours: hourRequest.hours_requested,
-            awardedHours: hourRequest.admin_hours_awarded,
-            eventName: hourRequest.events?.name,
-            isPending
-          })
-        })
+      if (hoursError || !hourRequests) {
+        console.error("❌ Hour requests fetch error:", hoursError)
+        setRecentActivity([])
+        setActivityLoading(false)
+        return
       }
+
+      // 🚀 OPTIMIZED: Process activities with better performance
+      const activities = hourRequests.map(hourRequest => {
+        const isApproved = hourRequest.status === 'approved'
+        const isPending = hourRequest.status === 'pending'
+        const isAdjusted = isApproved && hourRequest.admin_hours_awarded !== hourRequest.hours_requested
+        const eventName = hourRequest.events?.[0]?.name // Fix: events is an array
+        
+        let title, description, icon, color, displayDate
+
+        if (isPending) {
+          title = `${hourRequest.hours_requested} hours pending review`
+          description = eventName ? 
+            `For ${eventName}` : 
+            hourRequest.description.substring(0, 50) + (hourRequest.description.length > 50 ? '...' : '')
+          icon = 'clock'
+          color = 'blue'
+          displayDate = hourRequest.created_at
+        } else if (isApproved) {
+          if (isAdjusted) {
+            title = `${hourRequest.hours_requested} hours adjusted to ${hourRequest.admin_hours_awarded} hours`
+            description = `Originally requested ${hourRequest.hours_requested} hrs, admin awarded ${hourRequest.admin_hours_awarded} hrs`
+            icon = 'adjust'
+            color = 'yellow'
+          } else {
+            title = `${hourRequest.admin_hours_awarded || hourRequest.hours_requested} volunteer hours approved`
+            description = eventName ? 
+              `For ${eventName}` : 
+              hourRequest.description.substring(0, 50) + (hourRequest.description.length > 50 ? '...' : '')
+            icon = 'check'
+            color = 'green'
+          }
+          displayDate = hourRequest.reviewed_at
+        } else {
+          title = `${hourRequest.hours_requested} hours declined`
+          description = eventName ? 
+            `For ${eventName}` : 
+            hourRequest.description.substring(0, 50) + (hourRequest.description.length > 50 ? '...' : '')
+          icon = 'x'
+          color = 'red'
+          displayDate = hourRequest.reviewed_at
+        }
+
+        return {
+          id: `hours_${hourRequest.id}`,
+          type: hourRequest.status,
+          title,
+          description,
+          date: displayDate,
+          icon,
+          color,
+          adminNotes: hourRequest.admin_notes,
+          requestedHours: hourRequest.hours_requested,
+          awardedHours: hourRequest.admin_hours_awarded,
+          eventName,
+          isPending
+        }
+      })
 
       // Sort activities: pending first, then by date (most recent first)
       activities.sort((a, b) => {
-        // Pending requests always come first
         if (a.isPending && !b.isPending) return -1
         if (!a.isPending && b.isPending) return 1
-        
-        // Then sort by date (most recent first)
         return new Date(b.date).getTime() - new Date(a.date).getTime()
       })
 
@@ -492,6 +521,8 @@ export default function DashboardPage() {
     } catch (error) {
       console.error("❌ Error fetching hour request status updates:", error)
       setRecentActivity([])
+    } finally {
+      setActivityLoading(false)
     }
   }
 
@@ -587,34 +618,43 @@ export default function DashboardPage() {
     }
   }
 
-  const isUserSignedUp = (eventId: number) => {
-    return userSignups.some(signup => signup.event_id === eventId)
-  }
+  // 🚀 MEMOIZED HELPER FUNCTIONS for better performance
+  const isUserSignedUp = useMemo(() => {
+    return (eventId: number) => {
+      return userSignups.some(signup => signup.event_id === eventId)
+    }
+  }, [userSignups])
 
-  const getEventSignupCount = (event: any) => {
-    return event.event_signups?.filter(
-      (signup: any) => signup.signup_status === 'registered'
-    ).length || 0
-  }
+  const getEventSignupCount = useMemo(() => {
+    return (event: any) => {
+      return event.event_signups?.filter(
+        (signup: any) => signup.signup_status === 'registered'
+      ).length || 0
+    }
+  }, [])
 
-  const formatEventDate = (dateStr: string) => {
-    const date = new Date(dateStr)
-    return date.toLocaleDateString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    })
-  }
+  const formatEventDate = useMemo(() => {
+    return (dateStr: string) => {
+      const date = new Date(dateStr)
+      return date.toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      })
+    }
+  }, [])
 
-  const formatEventTime = (timeStr: string) => {
-    if (!timeStr) return ''
-    const [hours, minutes] = timeStr.split(':')
-    const hour = parseInt(hours)
-    const ampm = hour >= 12 ? 'PM' : 'AM'
-    const displayHour = hour % 12 || 12
-    return `${displayHour}:${minutes} ${ampm}`
-  }
+  const formatEventTime = useMemo(() => {
+    return (timeStr: string) => {
+      if (!timeStr) return ''
+      const [hours, minutes] = timeStr.split(':')
+      const hour = parseInt(hours)
+      const ampm = hour >= 12 ? 'PM' : 'AM'
+      const displayHour = hour % 12 || 12
+      return `${displayHour}:${minutes} ${ampm}`
+    }
+  }, [])
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -833,14 +873,7 @@ export default function DashboardPage() {
   }, [user?.email, user?.branch_id])
 
   if (loading || dataLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading dashboard...</p>
-        </div>
-      </div>
-    )
+    return <DashboardSkeleton />
   }
 
   return (
