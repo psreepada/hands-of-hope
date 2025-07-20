@@ -49,6 +49,12 @@ export default function SuperAdminPage() {
   const [branchFilter, setBranchFilter] = useState("all") // all, or specific branch ID
   const [hoursFilter, setHoursFilter] = useState("all") // all, 0-10, 11-25, 26-50, 51+
   
+  // Branch Management Filter State
+  const [branchSearchQuery, setBranchSearchQuery] = useState("")
+  const [branchUserFilter, setBranchUserFilter] = useState("all") // all, 0-5, 6-15, 16-30, 31+
+  const [branchHoursFilter, setBranchHoursFilter] = useState("all") // all, 0-50, 51-200, 201-500, 501+
+  const [branchEventsFilter, setBranchEventsFilter] = useState("all") // all, 0-2, 3-8, 9-15, 16+
+  
   // Delete User State
   const [showDeleteUserModal, setShowDeleteUserModal] = useState(false)
   const [userToDelete, setUserToDelete] = useState<any>(null)
@@ -424,6 +430,52 @@ export default function SuperAdminPage() {
     return true
   })
 
+  // Filter branches based on search and filter criteria
+  const filteredBranches = allBranches.filter(branch => {
+    // Search filter
+    if (branchSearchQuery.trim()) {
+      const searchLower = branchSearchQuery.toLowerCase()
+      const name = branch.name.toLowerCase()
+      const schoolName = branch.school_name.toLowerCase()
+      const location = branch.location.toLowerCase()
+      const leaderName = branch.leader_name?.toLowerCase() || ""
+      
+      if (!name.includes(searchLower) && !schoolName.includes(searchLower) && 
+          !location.includes(searchLower) && !leaderName.includes(searchLower)) {
+        return false
+      }
+    }
+    
+    // User count filter
+    const userCount = branch.actual_user_count || 0
+    if (branchUserFilter !== "all") {
+      if (branchUserFilter === "0-5" && (userCount < 0 || userCount > 5)) return false
+      if (branchUserFilter === "6-15" && (userCount < 6 || userCount > 15)) return false
+      if (branchUserFilter === "16-30" && (userCount < 16 || userCount > 30)) return false
+      if (branchUserFilter === "31+" && userCount < 31) return false
+    }
+    
+    // Hours filter
+    const totalHours = branch.actual_total_hours || 0
+    if (branchHoursFilter !== "all") {
+      if (branchHoursFilter === "0-50" && (totalHours < 0 || totalHours > 50)) return false
+      if (branchHoursFilter === "51-200" && (totalHours < 51 || totalHours > 200)) return false
+      if (branchHoursFilter === "201-500" && (totalHours < 201 || totalHours > 500)) return false
+      if (branchHoursFilter === "501+" && totalHours < 501) return false
+    }
+    
+    // Events filter
+    const eventCount = branch.actual_total_events || 0
+    if (branchEventsFilter !== "all") {
+      if (branchEventsFilter === "0-2" && (eventCount < 0 || eventCount > 2)) return false
+      if (branchEventsFilter === "3-8" && (eventCount < 3 || eventCount > 8)) return false
+      if (branchEventsFilter === "9-15" && (eventCount < 9 || eventCount > 15)) return false
+      if (branchEventsFilter === "16+" && eventCount < 16) return false
+    }
+    
+    return true
+  })
+
   const clearAllFilters = () => {
     setUserSearchQuery("")
     setRoleFilter("all")
@@ -431,7 +483,15 @@ export default function SuperAdminPage() {
     setHoursFilter("all")
   }
 
+  const clearBranchFilters = () => {
+    setBranchSearchQuery("")
+    setBranchUserFilter("all")
+    setBranchHoursFilter("all")
+    setBranchEventsFilter("all")
+  }
+
   const hasActiveFilters = userSearchQuery.trim() || roleFilter !== "all" || branchFilter !== "all" || hoursFilter !== "all"
+  const hasActiveBranchFilters = branchSearchQuery.trim() || branchUserFilter !== "all" || branchHoursFilter !== "all" || branchEventsFilter !== "all"
 
   useEffect(() => {
     if (user?.role === 'super-admin') {
@@ -570,8 +630,76 @@ export default function SuperAdminPage() {
             </div>
           </CardHeader>
           <CardContent>
+            {/* Branch Search and Filters */}
+            <div className="mb-6 space-y-4">
+              <div className="flex flex-col md:flex-row gap-4">
+                <div className="flex-1">
+                  <Input
+                    placeholder="Search by branch name, school, location, or leader..."
+                    value={branchSearchQuery}
+                    onChange={(e) => setBranchSearchQuery(e.target.value)}
+                    className="w-full"
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <select
+                    value={branchUserFilter}
+                    onChange={(e) => setBranchUserFilter(e.target.value)}
+                    className="px-3 py-2 border border-gray-300 rounded-md text-sm"
+                    title="Filter by number of users in branch"
+                  >
+                    <option value="all">All Users</option>
+                    <option value="0-5">0-5 Users</option>
+                    <option value="6-15">6-15 Users</option>
+                    <option value="16-30">16-30 Users</option>
+                    <option value="31+">31+ Users</option>
+                  </select>
+                  
+                  <select
+                    value={branchHoursFilter}
+                    onChange={(e) => setBranchHoursFilter(e.target.value)}
+                    className="px-3 py-2 border border-gray-300 rounded-md text-sm"
+                    title="Filter by total volunteer hours"
+                  >
+                    <option value="all">All Hours</option>
+                    <option value="0-50">0-50 Hours</option>
+                    <option value="51-200">51-200 Hours</option>
+                    <option value="201-500">201-500 Hours</option>
+                    <option value="501+">501+ Hours</option>
+                  </select>
+                  
+                  <select
+                    value={branchEventsFilter}
+                    onChange={(e) => setBranchEventsFilter(e.target.value)}
+                    className="px-3 py-2 border border-gray-300 rounded-md text-sm"
+                    title="Filter by number of events"
+                  >
+                    <option value="all">All Events</option>
+                    <option value="0-2">0-2 Events</option>
+                    <option value="3-8">3-8 Events</option>
+                    <option value="9-15">9-15 Events</option>
+                    <option value="16+">16+ Events</option>
+                  </select>
+                </div>
+              </div>
+              
+              {hasActiveBranchFilters && (
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-gray-600">Active filters:</span>
+                  <Button
+                    onClick={clearBranchFilters}
+                    size="sm"
+                    variant="outline"
+                    className="text-xs"
+                  >
+                    Clear All
+                  </Button>
+                </div>
+              )}
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {allBranches.map((branch) => (
+              {filteredBranches.map((branch) => (
                 <div key={branch.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
                   <div className="flex items-start justify-between mb-2">
                     <div>
@@ -606,6 +734,28 @@ export default function SuperAdminPage() {
                    </div>
                 </div>
               ))}
+              
+              {filteredBranches.length === 0 && (
+                <div className="col-span-full text-center py-12">
+                  <Building className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">No branches found</h3>
+                  <p className="text-gray-600 mb-4">
+                    {hasActiveBranchFilters 
+                      ? "No branches match your current filters. Try adjusting your search criteria."
+                      : "No branches have been created yet."
+                    }
+                  </p>
+                  {hasActiveBranchFilters && (
+                    <Button
+                      onClick={clearBranchFilters}
+                      variant="outline"
+                      size="sm"
+                    >
+                      Clear All Filters
+                    </Button>
+                  )}
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>

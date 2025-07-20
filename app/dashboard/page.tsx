@@ -57,12 +57,19 @@ export default function DashboardPage() {
   // Protect this route
   useAuthRedirect()
 
+  // For super-admins without branch_id, we'll still fetch user stats but skip branch-specific data
+  const hasBranchId = !!user?.branch_id
+
   const handleSignOut = async () => {
     await signOut()
   }
 
   const fetchBranchInfo = async () => {
-    if (!user?.branch_id) return
+    if (!user?.branch_id) {
+      // For super-admins without branch_id, set branchInfo to null
+      setBranchInfo(null)
+      return
+    }
     
     try {
       const { data: branch, error } = await supabase
@@ -324,7 +331,7 @@ export default function DashboardPage() {
   }
 
   const fetchDashboardData = async () => {
-    if (!user?.email || !user?.branch_id) return
+    if (!user?.email) return
     
     try {
       console.log("📊 Fetching dashboard data for user email:", user.email, "branch:", user.branch_id)
@@ -350,13 +357,18 @@ export default function DashboardPage() {
         eventsAttended: userData.total_events_attended || 0
       })
 
-      // 🚀 PERFORMANCE OPTIMIZATION: Execute all remaining queries in parallel
-      const [
-        { data: events, error: eventsError },
-        { data: signups, error: signupsError }
-      ] = await Promise.all([
-        // Fetch upcoming events for the user's branch
-        supabase
+      // Fetch user's event signups
+      const { data: signups, error: signupsError } = await supabase
+        .from('event_signups')
+        .select('id, event_id, signup_status, hours_earned')
+        .eq('user_id', databaseUserId)
+
+      // Only fetch branch events if user has a branch_id
+      let events: any[] = []
+      let eventsError: any = null
+      
+      if (hasBranchId) {
+        const eventsResult = await supabase
           .from('events')
           .select(`
             id,
@@ -379,14 +391,11 @@ export default function DashboardPage() {
           .eq('status', 'upcoming')
           .gte('event_date', new Date().toISOString().split('T')[0])
           .order('event_date', { ascending: true })
-          .limit(20), // Limit to 20 upcoming events for better performance
-
-        // Fetch user's event signups
-        supabase
-          .from('event_signups')
-          .select('id, event_id, signup_status, hours_earned')
-          .eq('user_id', databaseUserId)
-      ])
+          .limit(20) // Limit to 20 upcoming events for better performance
+        
+        events = eventsResult.data || []
+        eventsError = eventsResult.error
+      }
 
       // Process events data
       if (eventsError) {
@@ -866,7 +875,7 @@ export default function DashboardPage() {
   }
 
   useEffect(() => {
-    if (user?.email && user?.branch_id) {
+    if (user?.email) {
       fetchDashboardData()
       fetchBranchInfo()
     }
@@ -926,6 +935,11 @@ export default function DashboardPage() {
                 {branchInfo.name}
               </p>
             )}
+            {user?.role === 'super-admin' && !branchInfo && (
+              <p className="text-red-600 font-medium mt-1">
+                Super Admin (No Branch Assigned)
+              </p>
+            )}
           </div>
           
           <div className="flex items-center gap-3">
@@ -980,7 +994,15 @@ export default function DashboardPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4 max-h-96 overflow-y-auto">
-                {branchEvents.length > 0 ? (
+                {!hasBranchId ? (
+                  <div className="text-center py-8">
+                    <Building2 className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-500 mb-2">No branch assigned</p>
+                    <p className="text-sm text-gray-400">
+                      Super admins without a branch cannot view branch-specific events.
+                    </p>
+                  </div>
+                ) : branchEvents.length > 0 ? (
                   branchEvents.map((event) => {
                     const signupCount = getEventSignupCount(event)
                     const isSignedUp = isUserSignedUp(event.id)
