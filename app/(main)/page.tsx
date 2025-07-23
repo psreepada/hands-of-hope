@@ -303,7 +303,7 @@ export default function Home() {
                 <div>
                   <Button asChild className="bg-purple-600 hover:bg-purple-700">
                     <Link href="https://www.jukeboxprint.com/custom-stickers" target="_blank" rel="noopener noreferrer">
-                      Visit their amazing website and order stickers yourself!
+                      Visit Jukebox Print
                     </Link>
                   </Button>
                 </div>
