@@ -282,12 +282,12 @@ export default function Home() {
             
             <div className="grid md:grid-cols-2 gap-8 items-center">
               {/* Left Side - Image */}
-              <div className="relative h-[400px] rounded-xl overflow-hidden shadow-xl">
+              <div className="relative h-[300px] md:h-[400px] rounded-xl overflow-hidden shadow-xl">
                 <Image
                   src="/images/jukebox.jpg"
                   alt="Jukebox Print Organization"
                   fill
-                  className="object-cover"
+                  className="object-cover object-center"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
               </div>
