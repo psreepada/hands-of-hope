@@ -268,6 +268,51 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Jukebox Sponsorship Section */}
+      <section className="py-16 bg-gradient-to-r from-purple-50 to-purple-100">
+        <div className="container px-4 md:px-6">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-8">
+              <div className="inline-block mb-4">
+                <span className="bg-purple-100 text-purple-800 text-sm font-semibold px-3 py-1 rounded-full">
+                  Proudly Sponsored By
+                </span>
+              </div>
+            </div>
+            
+            <div className="grid md:grid-cols-2 gap-8 items-center">
+              {/* Left Side - Image */}
+              <div className="relative h-[400px] rounded-xl overflow-hidden shadow-xl">
+                <Image
+                  src="/images/jukebox.jpg"
+                  alt="Jukebox Print Organization"
+                  fill
+                  className="object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+              </div>
+              
+              {/* Right Side - Content */}
+              <div className="space-y-6">
+                <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-purple-800">
+                  <span className="text-purple-600">Jukebox Print</span> Organization
+                </h2>
+                <p className="text-lg text-gray-700 leading-relaxed">
+                  Hands of Hope is proudly partnered with Jukebox Print, an organization that helps improve our marketing by being an amazing sticker producer. Their sponsorship helps us continue our mission of making a positive impact in our communities and outreaching across the globe.
+                </p>
+                <div>
+                  <Button asChild className="bg-purple-600 hover:bg-purple-700">
+                    <Link href="https://www.jukeboxprint.com/custom-stickers" target="_blank" rel="noopener noreferrer">
+                      Visit Jukebox Print
+                    </Link>
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {}
       <section className="py-16 bg-yellow-50">
         <div className="max-w-3xl mx-auto text-center mb-12 px-4 md:px-6">

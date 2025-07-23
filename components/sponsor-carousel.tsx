@@ -50,7 +50,11 @@ const sponsors = [
   {
     name: "Centennial Collegiate",
     image: "/images/rotating/colc.png",
-  }
+  },
+  {
+    name: "Jukebox",
+    image: "/images/rotating/jukebox.png",
+  },
 ]
 
 const AUTOPLAY_INTERVAL = 3000 
