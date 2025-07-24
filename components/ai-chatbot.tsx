@@ -176,12 +176,8 @@ export default function AIChatbot() {
                       key={message.id}
                       className={cn(
                         "flex gap-2",
-                        message.sender === "user" ? "justify-end" : "justify-start",
-                        message.sender === "user" 
-                          ? "animate-message-slide-in-right" 
-                          : "animate-message-slide-in"
+                        message.sender === "user" ? "justify-end" : "justify-start"
                       )}
-                      style={{ animationDelay: `${index * 100}ms` }}
                     >
                       {message.sender === "bot" && (
                         <div className="flex-shrink-0 w-8 h-8 bg-teal-100 rounded-full flex items-center justify-center shadow-sm">
@@ -191,7 +187,7 @@ export default function AIChatbot() {
                       
                       <div
                         className={cn(
-                          "max-w-[80%] rounded-2xl px-4 py-2 text-sm shadow-sm",
+                          "max-w-[80%] rounded-2xl px-4 py-2 text-sm shadow-sm break-words",
                           message.sender === "user"
                             ? "bg-gradient-to-r from-teal-500 to-teal-600 text-white"
                             : "bg-gray-100 text-gray-800 border border-gray-200"
@@ -209,7 +205,7 @@ export default function AIChatbot() {
                   ))}
                   
                   {isTyping && (
-                    <div className="flex gap-2 justify-start animate-message-slide-in">
+                    <div className="flex gap-2 justify-start">
                       <div className="flex-shrink-0 w-8 h-8 bg-teal-100 rounded-full flex items-center justify-center shadow-sm">
                         <Bot className="h-4 w-4 text-teal-600" />
                       </div>
