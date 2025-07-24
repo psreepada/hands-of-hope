@@ -1403,7 +1403,7 @@ export default function DashboardPage() {
                     )}
                   </div>
                   <p className="text-xs text-gray-500">
-                    Upload a photo of yourself at the volunteer event as proof of participation. Max 5MB.
+                    Upload a photo of yourself at the volunteer event as proof of participation. Max 5MB. Only PNG, JPG, and JPEG files are allowed.
                   </p>
                 </div>
 
