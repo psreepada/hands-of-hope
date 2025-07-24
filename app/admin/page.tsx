@@ -572,59 +572,59 @@ export default function AdminPage() {
     }
   }
 
-  // Image component that handles async signed URL loading (memoized to prevent reloading)
-  const ImageDisplay = memo(({ imagePath, className, alt }: { imagePath: string, className: string, alt: string }) => {
-    const [imageUrl, setImageUrl] = useState<string | null>(null)
-    const [loading, setLoading] = useState(true)
+// Image component that handles async signed URL loading (memoized to prevent reloading)
+const ImageDisplay = memo(({ imagePath, className, alt }: { imagePath: string, className: string, alt: string }) => {
+  const [imageUrl, setImageUrl] = useState<string | null>(null)
+  const [loading, setLoading] = useState(true)
 
-    useEffect(() => {
-      const loadImage = async () => {
-        if (!imagePath) {
-          setLoading(false)
-          return
-        }
-
-        try {
-          const { data, error } = await supabase.storage
-            .from('hour-request-images')
-            .createSignedUrl(imagePath, 3600) // 1 hour expiry
-          
-          if (error) {
-            console.error("Error creating signed URL:", error)
-            setImageUrl('/placeholder.jpg')
-          } else {
-            setImageUrl(data.signedUrl)
-          }
-        } catch (error) {
-          console.error("Error getting image URL:", error)
-          setImageUrl('/placeholder.jpg')
-        } finally {
-          setLoading(false)
-        }
+  useEffect(() => {
+    const loadImage = async () => {
+      if (!imagePath) {
+        setLoading(false)
+        return
       }
 
-      loadImage()
-    }, [imagePath])
-
-    if (loading) {
-      return (
-        <div className={`${className} flex items-center justify-center bg-gray-100`}>
-          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-        </div>
-      )
+      try {
+        const { data, error } = await supabase.storage
+          .from('hour-request-images')
+          .createSignedUrl(imagePath, 3600) // 1 hour expiry
+        
+        if (error) {
+          console.error("Error creating signed URL:", error)
+          setImageUrl('/placeholder.jpg')
+        } else {
+          setImageUrl(data.signedUrl)
+        }
+      } catch (error) {
+        console.error("Error getting image URL:", error)
+        setImageUrl('/placeholder.jpg')
+      } finally {
+        setLoading(false)
+      }
     }
 
+    loadImage()
+  }, [imagePath])
+
+  if (loading) {
     return (
-      <img
-        src={imageUrl || '/placeholder.jpg'}
-        alt={alt}
-        className={className}
-        onError={(e) => {
-          e.currentTarget.src = '/placeholder.jpg'
-        }}
-      />
+      <div className={`${className} flex items-center justify-center bg-gray-100`}>
+        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+      </div>
     )
-  })
+  }
+
+  return (
+    <img
+      src={imageUrl || '/placeholder.jpg'}
+      alt={alt}
+      className={className}
+      onError={(e) => {
+        e.currentTarget.src = '/placeholder.jpg'
+      }}
+    />
+  )
+})
 
   const fetchBranchData = async () => {
     if (!user?.branch_id) {
