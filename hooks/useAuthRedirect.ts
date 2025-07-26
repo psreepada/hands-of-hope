@@ -1,8 +1,9 @@
 import { useEffect } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import { useAuth } from './useAuth'
+import type { UseAuthRedirectReturn } from '@/types'
 
-export const useAuthRedirect = () => {
+export const useAuthRedirect = (): UseAuthRedirectReturn => {
   const router = useRouter()
   const pathname = usePathname()
   const { user, loading } = useAuth()

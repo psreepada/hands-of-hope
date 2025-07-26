@@ -1,5 +1,6 @@
 "use client"
 
+import React from "react"
 import { useAuth } from "@/hooks/useAuth"
 import { useAuthRedirect } from "@/hooks/useAuthRedirect"
 import { Button } from "@/components/ui/button"
@@ -13,26 +14,34 @@ import { useState, useEffect, useMemo } from "react"
 import { supabase } from "@/lib/supabase"
 import { DashboardSkeleton } from "@/components/ui/skeleton-loader"
 import toast, { Toaster } from 'react-hot-toast'
+import type {
+  EventWithSignups,
+  EventSignup,
+  UserStats,
+  Activity,
+  Branch,
+  LogHoursFormData
+} from '@/types'
 
-export default function DashboardPage() {
+export default function DashboardPage(): JSX.Element {
   const { user, signOut, loading } = useAuth()
   const router = useRouter()
-  const [branchEvents, setBranchEvents] = useState<any[]>([])
-  const [userSignups, setUserSignups] = useState<any[]>([])
-  const [userStats, setUserStats] = useState({
+  const [branchEvents, setBranchEvents] = useState<EventWithSignups[]>([])
+  const [userSignups, setUserSignups] = useState<EventSignup[]>([])
+  const [userStats, setUserStats] = useState<UserStats>({
     totalHours: 0,
     eventsAttended: 0
   })
   const [dataLoading, setDataLoading] = useState(true)
   
   // Event Signup Modal State
-  const [showSignupModal, setShowSignupModal] = useState(false)
-  const [selectedEvent, setSelectedEvent] = useState<any>(null)
-  const [signupLoading, setSignupLoading] = useState(false)
+  const [showSignupModal, setShowSignupModal] = useState<boolean>(false)
+  const [selectedEvent, setSelectedEvent] = useState<EventWithSignups | null>(null)
+  const [signupLoading, setSignupLoading] = useState<boolean>(false)
   
   // Log Hours Modal State
-  const [showLogHoursModal, setShowLogHoursModal] = useState(false)
-  const [logHoursData, setLogHoursData] = useState({
+  const [showLogHoursModal, setShowLogHoursModal] = useState<boolean>(false)
+  const [logHoursData, setLogHoursData] = useState<LogHoursFormData>({
     hours: "",
     description: "",
     eventId: ""
@@ -42,12 +51,12 @@ export default function DashboardPage() {
   const [logHoursLoading, setLogHoursLoading] = useState(false)
   
   // Recent Activity State
-  const [recentActivity, setRecentActivity] = useState<any[]>([])
-  const [activityLoading, setActivityLoading] = useState(true)
-  
+  const [recentActivity, setRecentActivity] = useState<Activity[]>([])
+  const [activityLoading, setActivityLoading] = useState<boolean>(true)
+
   // Settings Modal State
-  const [showSettingsModal, setShowSettingsModal] = useState(false)
-  const [branchInfo, setBranchInfo] = useState<any>(null)
+  const [showSettingsModal, setShowSettingsModal] = useState<boolean>(false)
+  const [branchInfo, setBranchInfo] = useState<Branch | null>(null)
   const [branchTransferCode, setBranchTransferCode] = useState("")
   const [transferLoading, setTransferLoading] = useState(false)
   const [deleteConfirmation, setDeleteConfirmation] = useState("")
@@ -305,7 +314,7 @@ export default function DashboardPage() {
 
       // Delete the Supabase Auth user account
       const { error: authDeleteError } = await supabase.auth.admin.deleteUser(
-        user?.id || ''
+        user?.id?.toString() || ''
       )
 
       // Note: The admin.deleteUser might not work from client side due to RLS
@@ -360,7 +369,7 @@ export default function DashboardPage() {
       // Fetch user's event signups
       const { data: signups, error: signupsError } = await supabase
         .from('event_signups')
-        .select('id, event_id, signup_status, hours_earned')
+        .select('id, event_id, user_id, signup_status, hours_earned, notes, created_at, updated_at')
         .eq('user_id', databaseUserId)
 
       // Only fetch branch events if user has a branch_id
@@ -465,13 +474,13 @@ export default function DashboardPage() {
         const isPending = hourRequest.status === 'pending'
         const isAdjusted = isApproved && hourRequest.admin_hours_awarded !== hourRequest.hours_requested
         const eventName = hourRequest.events?.[0]?.name // Fix: events is an array
-        
-        let title, description, icon, color, displayDate
+
+        let title: string, description: string, icon: 'clock' | 'check' | 'x' | 'adjust', color: 'blue' | 'green' | 'red' | 'yellow', displayDate: string
 
         if (isPending) {
           title = `${hourRequest.hours_requested} hours pending review`
-          description = eventName ? 
-            `For ${eventName}` : 
+          description = eventName ?
+            `For ${eventName}` :
             hourRequest.description.substring(0, 50) + (hourRequest.description.length > 50 ? '...' : '')
           icon = 'clock'
           color = 'blue'
@@ -484,8 +493,8 @@ export default function DashboardPage() {
             color = 'yellow'
           } else {
             title = `${hourRequest.admin_hours_awarded || hourRequest.hours_requested} volunteer hours approved`
-            description = eventName ? 
-              `For ${eventName}` : 
+            description = eventName ?
+              `For ${eventName}` :
               hourRequest.description.substring(0, 50) + (hourRequest.description.length > 50 ? '...' : '')
             icon = 'check'
             color = 'green'
@@ -493,8 +502,8 @@ export default function DashboardPage() {
           displayDate = hourRequest.reviewed_at
         } else {
           title = `${hourRequest.hours_requested} hours declined`
-          description = eventName ? 
-            `For ${eventName}` : 
+          description = eventName ?
+            `For ${eventName}` :
             hourRequest.description.substring(0, 50) + (hourRequest.description.length > 50 ? '...' : '')
           icon = 'x'
           color = 'red'
@@ -655,10 +664,10 @@ export default function DashboardPage() {
   }, [])
 
   const formatEventTime = useMemo(() => {
-    return (timeStr: string) => {
+    return (timeStr: string | null) => {
       if (!timeStr) return ''
       const [hours, minutes] = timeStr.split(':')
-      const hour = parseInt(hours)
+      const hour = parseInt(hours || '0')
       const ampm = hour >= 12 ? 'PM' : 'AM'
       const displayHour = hour % 12 || 12
       return `${displayHour}:${minutes} ${ampm}`
@@ -1318,6 +1327,7 @@ export default function DashboardPage() {
                   </Label>
                   <select
                     id="eventId"
+                    title="Select related event"
                     value={logHoursData.eventId}
                     onChange={(e) => handleLogHoursDataChange("eventId", e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"

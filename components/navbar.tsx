@@ -1,13 +1,14 @@
 "use client"
 
-import { useState } from "react"
+import React, { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Menu, X } from "lucide-react"
 import { usePathname } from "next/navigation"
+import type { NavbarProps } from "@/types"
 
-export default function Navbar() {
+export default function Navbar({ className }: NavbarProps = {}): JSX.Element {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const pathname = usePathname()
 
@@ -84,7 +85,7 @@ export default function Navbar() {
               <Link href="/signup">Sign Up</Link>
             </Button>
           </div>
-          <button className="md:hidden" onClick={toggleMenu}>
+          <button type="button" className="md:hidden" onClick={toggleMenu}>
             {isMenuOpen ? <X className="h-6 w-6 text-teal-800" /> : <Menu className="h-6 w-6 text-teal-800" />}
           </button>
         </div>

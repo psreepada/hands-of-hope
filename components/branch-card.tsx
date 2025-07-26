@@ -1,31 +1,14 @@
 "use client"
 
-import { useState } from "react"
+import React, { useState } from "react"
 import Image from "next/image"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { MapPin, Phone, Mail, Calendar, ChevronDown, ChevronUp, Clock } from "lucide-react"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import type { BranchCardProps } from "@/types"
 
-interface BranchProps {
-  branch: {
-    id: number
-    name: string
-    image: string
-    phone: string
-    email: string
-    address: string
-    volunteers: number
-    events: number
-    description: string
-    meetingDay: string
-    meetingTime: string
-    leadName: string
-    leadTitle: string
-  }
-}
-
-export default function BranchCard({ branch }: BranchProps) {
+export default function BranchCard({ branch }: BranchCardProps): JSX.Element {
   const [expanded, setExpanded] = useState(false)
 
   return (

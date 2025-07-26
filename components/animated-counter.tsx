@@ -1,16 +1,8 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useInView } from "react-intersection-observer";
-
-interface AnimatedCounterProps {
-  end: number;
-  duration?: number;
-  className?: string;
-  prefix?: string;
-  decimals?: number;
-  suffix?: string;
-}
+import type { AnimatedCounterProps } from "@/types";
 
 export default function AnimatedCounter({
   end,
@@ -19,7 +11,7 @@ export default function AnimatedCounter({
   prefix = "",
   decimals = 0,
   suffix = ""
-}: AnimatedCounterProps) {
+}: AnimatedCounterProps): JSX.Element {
   const [count, setCount] = useState(0);
   const countRef = useRef(0);
   const [ref, inView] = useInView({

@@ -1,19 +1,15 @@
 import { useEffect, useState } from 'react'
 import { User, Session } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
+import type { AuthUser, UseAuthReturn, SupabaseError } from '@/types'
 
-export interface AuthUser extends User {
-  role?: 'member' | 'branch_leader' | 'admin' | 'super-admin'
-  branch_id?: number
-  db_id?: number
-  first_name?: string
-  last_name?: string
-}
+// Re-export AuthUser for backward compatibility
+export type { AuthUser }
 
-export const useAuth = () => {
+export const useAuth = (): UseAuthReturn => {
   const [user, setUser] = useState<AuthUser | null>(null)
   const [session, setSession] = useState<Session | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState<boolean>(true)
 
   useEffect(() => {
     // Get initial session
@@ -91,9 +87,9 @@ export const useAuth = () => {
     }
   }
 
-  const signOut = async () => {
+  const signOut = async (): Promise<{ error: SupabaseError | null }> => {
     const { error } = await supabase.auth.signOut()
-    return { error }
+    return { error: error as SupabaseError | null }
   }
 
   return {
