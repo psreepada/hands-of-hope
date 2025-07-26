@@ -1,6 +1,6 @@
 "use client"
 
-import type React from "react"
+import React from "react"
 import "./globals.css"
 import { Montserrat } from "next/font/google"
 import { ThemeProvider } from "@/components/theme-provider"
@@ -10,11 +10,11 @@ import { useState } from 'react'
 
 const montserrat = Montserrat({ subsets: ["latin"] })
 
-export default function RootLayout({
-  children,
-}: {
+interface RootLayoutProps {
   children: React.ReactNode
-}) {
+}
+
+export default function RootLayout({ children }: RootLayoutProps): JSX.Element {
   const [queryClient] = useState(() => new QueryClient({
     defaultOptions: {
       queries: {

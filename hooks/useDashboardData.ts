@@ -1,8 +1,17 @@
 import { useQuery, useQueries } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from './useAuth'
+import type {
+  UseDashboardDataReturn,
+  EventWithSignups,
+  Branch,
+  EventSignup,
+  Activity,
+  UserStats,
+  HoursRequestWithEvent
+} from '@/types'
 
-export const useDashboardData = () => {
+export const useDashboardData = (): UseDashboardDataReturn => {
   const { user } = useAuth()
 
   // Parallel queries using useQueries for optimal performance

@@ -1,11 +1,13 @@
 "use client"
 
+import React from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { Facebook, Instagram, Twitter, Mail, Phone, MapPin, Linkedin } from "lucide-react"
 import { useDonationModal } from "@/components/DonationModalProvider"
+import type { FooterProps } from "@/types"
 
-export default function Footer() {
+export default function Footer({ className }: FooterProps = {}): JSX.Element {
   const { open } = useDonationModal()
 
   return (
