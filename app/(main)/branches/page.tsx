@@ -68,6 +68,13 @@ const branches = [
     image: "/images/Roswell High School.jpg",
     phone: "(678)-522-8249",
     address: "11595 King Rd, Roswell, GA 30075"
+  },
+  {
+    id: 10,
+    name: "Fulton Science Academy",
+    image: "/images/FSA.jpg",
+    phone: "(770)-222-7777",
+    address: "3035 Fanfare Way, Alpharetta, GA 30009"
   }
 ]
 
