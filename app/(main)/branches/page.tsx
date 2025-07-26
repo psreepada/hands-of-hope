@@ -54,6 +54,20 @@ const branches = [
     image: "/images/ABC.jpg",
     phone: "(306)-999-0363",
     address: "1904 Clarence Ave S, Saskatoon, SK S7J 1L3, Canada"
+  },
+  {
+    id: 8,
+    name: "Centennial high school",
+    image: "/images/Centennial high school.jpg",
+    phone: "(404)-514-2963",
+    address: "9310 Scott Rd, Roswell, GA 30076"
+  },
+  {
+    id: 9,
+    name: "Roswell High School",
+    image: "/images/Roswell High School.jpg",
+    phone: "(678)-522-8249",
+    address: "11595 King Rd, Roswell, GA 30075"
   }
 ]
 
