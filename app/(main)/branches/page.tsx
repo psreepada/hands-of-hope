@@ -57,7 +57,7 @@ const branches = [
   },
   {
     id: 8,
-    name: "Centennial high school",
+    name: "Centennial High School",
     image: "/images/Centennial high school.jpg",
     phone: "(404)-514-2963",
     address: "9310 Scott Rd, Roswell, GA 30076"

@@ -10,13 +10,14 @@ import { useDonationModal } from "@/components/DonationModalProvider"
 import SponsorCarousel from "@/components/sponsor-carousel"
 import Link from "next/link"
 import AnimatedCounter from "@/components/animated-counter"
+import { useHomepageStats } from "@/hooks/useHomepageStats"
 
 export default function Home() {
   const { open } = useDonationModal()
+  const { data: stats, isLoading: statsLoading } = useHomepageStats()
 
   return (
     <div className="flex min-h-screen flex-col">
-      {}
       <section className="relative">
         <div className="absolute inset-0 bg-gradient-to-r from-teal-900/80 to-teal-700/80 z-10" />
         <div className="relative h-[600px] w-full">
@@ -86,7 +87,14 @@ export default function Home() {
         <div className="container px-4 md:px-6"> 
           <h2 className="text-3xl font-bold tracking-tight text-center text-teal-800 mb-12">Our Impact</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            <div className="bg-white rounded-xl border-2 border-teal-100 p-6 text-center shadow-md hover:shadow-lg transition-all">
+            {statsLoading ? (
+              <div className="col-span-full text-center py-8">
+                <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600"></div>
+                <p className="mt-2 text-gray-600">Loading impact data...</p>
+              </div>
+            ) : (
+              <>
+                <div className="bg-white rounded-xl border-2 border-teal-100 p-6 text-center shadow-md hover:shadow-lg transition-all">
               <div className="rounded-full bg-teal-50 w-16 h-16 flex items-center justify-center mx-auto mb-4">
                 <Heart className="h-8 w-8 text-teal-600" />
               </div>
@@ -103,7 +111,7 @@ export default function Home() {
               </div>
               <h3 className="text-2xl font-bold text-teal-800 mb-1">Contributed</h3>
               <p className="text-3xl font-bold text-yellow-500 mb-2">
-                <AnimatedCounter end={1270} />
+                <AnimatedCounter end={Math.round(stats?.totalHours || 1270)} />
               </p>
               <p className="text-lg text-gray-600">combined volunteer hours</p>
             </div>
@@ -125,7 +133,7 @@ export default function Home() {
               </div>
               <h3 className="text-2xl font-bold text-teal-800 mb-1">Established</h3>
               <p className="text-3xl font-bold text-yellow-500 mb-2">
-                <AnimatedCounter end={7} />
+                <AnimatedCounter end={stats?.branchCount || 7} />
               </p>
               <p className="text-lg text-gray-600">school branches</p>
             </div>
@@ -136,7 +144,7 @@ export default function Home() {
               </div>
               <h3 className="text-2xl font-bold text-teal-800 mb-1">United</h3>
               <p className="text-3xl font-bold text-yellow-500 mb-2">
-                <AnimatedCounter end={159} />
+                <AnimatedCounter end={stats?.totalMembers || 159} />
               </p>
               <p className="text-lg text-gray-600">members across all branches</p>
             </div>
@@ -151,6 +159,8 @@ export default function Home() {
               </p>
               <p className="text-lg text-gray-600">shelter organizations</p>
             </div>
+            </>
+          )}
           </div>
         </div>
       </section>
