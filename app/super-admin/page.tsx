@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { LogOut, Shield, Users, Building, BarChart3, School, X, Plus, MapPin, ChevronDown, Trash2, Settings } from "lucide-react"
+import { LogOut, Shield, Users, Building, BarChart3, School, X, Plus, MapPin, ChevronDown, Trash2, Settings, Upload, Image as ImageIcon } from "lucide-react"
 import { useState, useEffect } from "react"
 import { supabase } from "@/lib/supabase"
 import { useRouter } from "next/navigation"
@@ -35,9 +35,24 @@ export default function SuperAdminPage() {
     name: "",
     school_name: "",
     location: "",
-    leader_name: "",
-    leader_email: ""
+    image_url: "",
+    school_logo_url: ""
   })
+  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
+  const [schoolLogoFile, setSchoolLogoFile] = useState<File | null>(null)
+  const [schoolLogoPreview, setSchoolLogoPreview] = useState<string | null>(null)
+  
+  // Multiple leaders state
+  const [leaders, setLeaders] = useState([{
+    id: Date.now(),
+    leader_name: "",
+    leader_email: "",
+    leader_description: "",
+    leader_image_file: null as File | null,
+    leader_image_preview: null as string | null,
+    leader_image_url: ""
+  }])
   const [createBranchLoading, setCreateBranchLoading] = useState(false)
   
   // Role Management State
@@ -177,11 +192,139 @@ export default function SuperAdminPage() {
       console.log("🏗️ Starting branch creation...")
       
       // Validate required fields
-      if (!branchFormData.name || !branchFormData.school_name || !branchFormData.location || !branchFormData.leader_name || !branchFormData.leader_email) {
-        toast.error("Please fill in all required fields")
+      if (!branchFormData.name || !branchFormData.school_name || !branchFormData.location) {
+        toast.error("Please fill in all required branch fields")
         setCreateBranchLoading(false)
         return
       }
+
+      // Validate school logo is provided
+      if (!schoolLogoFile) {
+        toast.error("Please upload a school logo")
+        setCreateBranchLoading(false)
+        return
+      }
+
+      // Validate that we have at least one complete leader
+      const validLeaders = leaders.filter(leader => 
+        leader.leader_name.trim() && leader.leader_email.trim() && leader.leader_description.trim()
+      )
+      
+      if (validLeaders.length === 0) {
+        toast.error("Please add at least one complete leader (name, email, and description required)")
+        setCreateBranchLoading(false)
+        return
+      }
+
+      // Upload branch image if provided
+      let imageUrl = ""
+      if (imageFile) {
+        try {
+          console.log("📤 Uploading branch image...")
+          
+          const fileExt = imageFile.name.split('.').pop()
+          const fileName = `branch-${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`
+          
+          const { data: uploadData, error: uploadError } = await supabase.storage
+            .from('branch-images')
+            .upload(fileName, imageFile)
+
+          if (uploadError) {
+            console.error("❌ Branch image upload failed:", uploadError)
+            const errorMessage = uploadError.message || "Unknown storage error"
+            toast.error(`Branch image upload failed: ${errorMessage}. Branch will be created without image.`)
+            console.warn("⚠️ Continuing with branch creation without branch image...")
+          } else {
+            // Get public URL
+            const { data: { publicUrl } } = supabase.storage
+              .from('branch-images')
+              .getPublicUrl(uploadData.path)
+            
+            imageUrl = publicUrl
+            console.log("✅ Branch image uploaded successfully:", imageUrl)
+          }
+        } catch (error) {
+          console.error("❌ Unexpected error during branch image upload:", error)
+          toast.error("Branch image upload failed unexpectedly. Branch will be created without image.")
+        }
+      }
+
+      // Upload school logo
+      let schoolLogoUrl = ""
+      if (schoolLogoFile) {
+        try {
+          console.log("📤 Uploading school logo...")
+          
+          const fileExt = schoolLogoFile.name.split('.').pop()
+          const fileName = `school-logo-${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`
+          
+          const { data: uploadData, error: uploadError } = await supabase.storage
+            .from('branch-images')
+            .upload(fileName, schoolLogoFile)
+
+          if (uploadError) {
+            console.error("❌ School logo upload failed:", uploadError)
+            const errorMessage = uploadError.message || "Unknown storage error"
+            toast.error(`School logo upload failed: ${errorMessage}`)
+            setCreateBranchLoading(false)
+            return
+          } else {
+            // Get public URL
+            const { data: { publicUrl } } = supabase.storage
+              .from('branch-images')
+              .getPublicUrl(uploadData.path)
+            
+            schoolLogoUrl = publicUrl
+            console.log("✅ School logo uploaded successfully:", schoolLogoUrl)
+          }
+        } catch (error) {
+          console.error("❌ Unexpected error during school logo upload:", error)
+          toast.error("School logo upload failed unexpectedly")
+          setCreateBranchLoading(false)
+          return
+        }
+      }
+
+      // Upload leader images for valid leaders
+      const leadersWithImages = await Promise.all(
+        validLeaders.map(async (leader, index) => {
+          let leaderImageUrl = ""
+          
+          if (leader.leader_image_file) {
+            try {
+              console.log(`📤 Uploading leader ${index + 1} image...`)
+              
+              const fileExt = leader.leader_image_file.name.split('.').pop()
+              const fileName = `leader-${Date.now()}-${index}-${Math.random().toString(36).substring(2)}.${fileExt}`
+              
+              const { data: uploadData, error: uploadError } = await supabase.storage
+                .from('branch-images')
+                .upload(fileName, leader.leader_image_file)
+
+              if (uploadError) {
+                console.error(`❌ Leader ${index + 1} image upload failed:`, uploadError)
+                console.warn(`⚠️ Continuing without image for leader ${index + 1}...`)
+              } else {
+                // Get public URL
+                const { data: { publicUrl } } = supabase.storage
+                  .from('branch-images')
+                  .getPublicUrl(uploadData.path)
+                
+                leaderImageUrl = publicUrl
+                console.log(`✅ Leader ${index + 1} image uploaded successfully:`, leaderImageUrl)
+              }
+            } catch (error) {
+              console.error(`❌ Unexpected error during leader ${index + 1} image upload:`, error)
+            }
+          }
+          
+          return {
+            ...leader,
+            leader_image_url: leaderImageUrl,
+            leader_order: index + 1
+          }
+        })
+      )
 
       // Generate a unique 6-digit join code
       const generateJoinCode = () => {
@@ -222,13 +365,12 @@ export default function SuperAdminPage() {
 
       console.log("✅ Generated unique join code:", joinCode)
 
-      // Create the branch
+      // Create the branch (without leader fields since they're now in separate table)
       const branchData = {
         name: branchFormData.name,
         school_name: branchFormData.school_name,
         location: branchFormData.location,
-        leader_name: branchFormData.leader_name,
-        leader_email: branchFormData.leader_email,
+        image_url: imageUrl,
         join_code: joinCode,
         total_users: 0,
         total_hours: 0,
@@ -250,19 +392,83 @@ export default function SuperAdminPage() {
         return
       }
 
-      // Leader information is saved in the branch record for reference
-      // Manual promotion to admin role will be required after they join
-
       console.log("✅ Branch created successfully:", newBranch)
+
+      // Insert leaders into the branch_leaders table
+      const branchId = newBranch.id
+      const leaderInsertData = leadersWithImages.map(leader => ({
+        branch_id: branchId,
+        leader_name: leader.leader_name,
+        leader_email: leader.leader_email,
+        leader_description: leader.leader_description,
+        leader_image_url: leader.leader_image_url,
+        leader_order: leader.leader_order
+      }))
+
+      const { error: leadersError } = await supabase
+        .from('branch_leaders')
+        .insert(leaderInsertData)
+
+      if (leadersError) {
+        console.error("❌ Leaders insertion failed:", leadersError)
+        toast.error("Branch created but failed to add leaders: " + leadersError.message)
+        // Don't return here - branch was created successfully
+      } else {
+        console.log("✅ Leaders added successfully")
+      }
+
+      // Create sponsor entry for the school
+      if (schoolLogoUrl) {
+        try {
+          console.log("📝 Creating sponsor entry...")
+          
+          const sponsorData = {
+            name: branchFormData.school_name,
+            logo_url: schoolLogoUrl,
+            sponsor_type: 'school',
+            branch_id: branchId,
+            is_active: true,
+            display_order: 0 // Will be updated later if needed
+          }
+
+          const { error: sponsorError } = await supabase
+            .from('sponsors')
+            .insert([sponsorData])
+
+          if (sponsorError) {
+            console.error("❌ Sponsor creation failed:", sponsorError)
+            toast.error("Branch created but failed to add sponsor: " + sponsorError.message)
+            // Don't return here - branch was created successfully
+          } else {
+            console.log("✅ Sponsor added successfully")
+          }
+        } catch (error) {
+          console.error("❌ Unexpected error creating sponsor:", error)
+          // Don't fail the whole process for sponsor creation
+        }
+      }
       
       // Reset form and close modal
       setBranchFormData({
         name: "",
         school_name: "",
         location: "",
-        leader_name: "",
-        leader_email: ""
+        image_url: "",
+        school_logo_url: ""
       })
+      setImageFile(null)
+      setImagePreview(null)
+      setSchoolLogoFile(null)
+      setSchoolLogoPreview(null)
+      setLeaders([{
+        id: Date.now(),
+        leader_name: "",
+        leader_email: "",
+        leader_description: "",
+        leader_image_file: null,
+        leader_image_preview: null,
+        leader_image_url: ""
+      }])
       setShowCreateBranchModal(false)
       
       toast.success(`🎉 Branch created successfully! Join Code: ${joinCode}`)
@@ -283,6 +489,136 @@ export default function SuperAdminPage() {
 
   const handleBranchFormChange = (field: string, value: string) => {
     setBranchFormData(prev => ({ ...prev, [field]: value }))
+  }
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      // Validate file type
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/avif']
+      if (!allowedTypes.includes(file.type)) {
+        toast.error('Please select a valid image file (JPEG, PNG, WebP, or AVIF)')
+        return
+      }
+      
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error('Image file must be less than 5MB')
+        return
+      }
+      
+      setImageFile(file)
+      
+      // Create preview
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        setImagePreview(e.target?.result as string)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const removeImage = () => {
+    setImageFile(null)
+    setImagePreview(null)
+  }
+
+  const handleSchoolLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      // Validate file type
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/avif']
+      if (!allowedTypes.includes(file.type)) {
+        toast.error('Please select a valid image file (JPEG, PNG, WebP, or AVIF)')
+        return
+      }
+      
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error('Image file must be less than 5MB')
+        return
+      }
+      
+      setSchoolLogoFile(file)
+      
+      // Create preview
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        setSchoolLogoPreview(e.target?.result as string)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const removeSchoolLogo = () => {
+    setSchoolLogoFile(null)
+    setSchoolLogoPreview(null)
+    setBranchFormData(prev => ({ ...prev, school_logo_url: "" }))
+  }
+
+  // Helper functions for managing multiple leaders
+  const addLeader = () => {
+    setLeaders(prev => [...prev, {
+      id: Date.now(),
+      leader_name: "",
+      leader_email: "",
+      leader_description: "",
+      leader_image_file: null,
+      leader_image_preview: null,
+      leader_image_url: ""
+    }])
+  }
+
+  const removeLeader = (id: number) => {
+    setLeaders(prev => prev.filter(leader => leader.id !== id))
+  }
+
+  const updateLeader = (id: number, field: string, value: string) => {
+    setLeaders(prev => prev.map(leader => 
+      leader.id === id ? { ...leader, [field]: value } : leader
+    ))
+  }
+
+  const handleLeaderImageChange = (id: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      // Validate file type
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/avif']
+      if (!allowedTypes.includes(file.type)) {
+        toast.error('Please select a valid image file (JPEG, PNG, WebP, or AVIF)')
+        return
+      }
+      
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error('Image file must be less than 5MB')
+        return
+      }
+      
+      // Create preview
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        const preview = e.target?.result as string
+        setLeaders(prev => prev.map(leader => 
+          leader.id === id ? { 
+            ...leader, 
+            leader_image_file: file,
+            leader_image_preview: preview 
+          } : leader
+        ))
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const removeLeaderImage = (id: number) => {
+    setLeaders(prev => prev.map(leader => 
+      leader.id === id ? { 
+        ...leader, 
+        leader_image_file: null,
+        leader_image_preview: null 
+      } : leader
+    ))
   }
 
   const handleRoleUpdate = async (userId: string, newRole: 'member' | 'admin' | 'super-admin') => {
@@ -985,31 +1321,231 @@ export default function SuperAdminPage() {
                   />
                 </div>
                 
-                                 <div>
-                   <Label htmlFor="leader_name">Leader Name *</Label>
-                   <Input
-                     id="leader_name"
-                     value={branchFormData.leader_name}
-                     onChange={(e) => handleBranchFormChange("leader_name", e.target.value)}
-                     placeholder="e.g., John Smith"
-                     required
-                   />
-                 </div>
-                 
-                 <div>
-                   <Label htmlFor="leader_email">Leader Email *</Label>
-                                     <Input
-                     id="leader_email"
-                     type="email"
-                     value={branchFormData.leader_email}
-                     onChange={(e) => handleBranchFormChange("leader_email", e.target.value)}
-                     placeholder="leader@example.com"
-                     required
-                   />
-                   <p className="text-sm text-gray-500 mt-1">
-                     Leader info is saved for reference. After they join using the branch code, manually promote them to admin.
-                   </p>
+                                                 {/* Multiple Leaders Section */}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-base font-medium">Branch Leaders *</Label>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={addLeader}
+                      className="flex items-center gap-2"
+                    >
+                      <Plus className="h-4 w-4" />
+                      Add Co-President
+                    </Button>
+                  </div>
+                  
+                  {leaders.map((leader, index) => (
+                    <div key={leader.id} className="border border-gray-200 rounded-lg p-4 space-y-4">
+                      <div className="flex items-center justify-between">
+                        <h4 className="font-medium text-gray-900">
+                          {index === 0 ? 'President' : `Co-President ${index + 1}`}
+                        </h4>
+                        {leaders.length > 1 && (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => removeLeader(leader.id)}
+                            className="text-red-600 hover:text-red-700"
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor={`leader_name_${leader.id}`}>Name *</Label>
+                          <Input
+                            id={`leader_name_${leader.id}`}
+                            value={leader.leader_name}
+                            onChange={(e) => updateLeader(leader.id, "leader_name", e.target.value)}
+                            placeholder="e.g., John Smith"
+                            required
+                          />
+                        </div>
+                        
+                        <div>
+                          <Label htmlFor={`leader_email_${leader.id}`}>Email *</Label>
+                          <Input
+                            id={`leader_email_${leader.id}`}
+                            type="email"
+                            value={leader.leader_email}
+                            onChange={(e) => updateLeader(leader.id, "leader_email", e.target.value)}
+                            placeholder="leader@example.com"
+                            required
+                          />
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <Label htmlFor={`leader_description_${leader.id}`}>Description/Title *</Label>
+                        <Input
+                          id={`leader_description_${leader.id}`}
+                          value={leader.leader_description}
+                          onChange={(e) => updateLeader(leader.id, "leader_description", e.target.value)}
+                          placeholder={index === 0 ? "e.g., Innovation Academy Branch President" : "e.g., Innovation Academy Branch Co-President"}
+                          required
+                        />
+                      </div>
+                      
+                      <div>
+                        <Label htmlFor={`leader_image_${leader.id}`}>Profile Picture (Optional)</Label>
+                        <div className="mt-1">
+                          {leader.leader_image_preview ? (
+                            <div className="relative inline-block">
+                              <img
+                                src={leader.leader_image_preview}
+                                alt="Leader preview"
+                                className="w-24 h-24 object-cover rounded-full border"
+                              />
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => removeLeaderImage(leader.id)}
+                                className="absolute -top-2 -right-2 h-6 w-6 p-0 rounded-full"
+                              >
+                                <X className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          ) : (
+                            <div className="border-2 border-dashed border-gray-300 rounded-md p-4">
+                              <div className="text-center">
+                                <ImageIcon className="mx-auto h-8 w-8 text-gray-400" />
+                                <div className="mt-2">
+                                  <Label htmlFor={`leader_image_${leader.id}`} className="cursor-pointer">
+                                    <span className="text-sm font-medium text-gray-900">
+                                      Upload profile picture
+                                    </span>
+                                    <span className="block text-xs text-gray-500">
+                                      PNG, JPG, WebP up to 5MB
+                                    </span>
+                                  </Label>
+                                  <Input
+                                    id={`leader_image_${leader.id}`}
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={(e) => handleLeaderImageChange(leader.id, e)}
+                                    className="sr-only"
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
                     </div>
+                  ))}
+                  
+                  <p className="text-sm text-gray-500">
+                    Add branch leaders/co-presidents. They will appear in the "Branch Presidents" section of the crew page.
+                  </p>
+                </div>
+
+                <div>
+                  <Label htmlFor="branch_image">Branch Image</Label>
+                  <div className="mt-1">
+                    {imagePreview ? (
+                      <div className="relative">
+                        <img
+                          src={imagePreview}
+                          alt="Branch preview"
+                          className="w-full h-32 object-cover rounded-md border"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={removeImage}
+                          className="absolute top-2 right-2 h-8 w-8 p-0"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="border-2 border-dashed border-gray-300 rounded-md p-6">
+                        <div className="text-center">
+                          <ImageIcon className="mx-auto h-12 w-12 text-gray-400" />
+                          <div className="mt-4">
+                            <Label htmlFor="branch_image" className="cursor-pointer">
+                              <span className="mt-2 block text-sm font-medium text-gray-900">
+                                Upload branch image
+                              </span>
+                              <span className="mt-1 block text-sm text-gray-500">
+                                PNG, JPG, WebP up to 5MB
+                              </span>
+                            </Label>
+                            <Input
+                              id="branch_image"
+                              type="file"
+                              accept="image/*"
+                              onChange={handleImageChange}
+                              className="sr-only"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-sm text-gray-500 mt-1">
+                    This will be displayed on the branches page to represent the branch.
+                  </p>
+                </div>
+
+                <div>
+                  <Label htmlFor="school_logo">School Logo *</Label>
+                  <div className="mt-1">
+                    {schoolLogoPreview ? (
+                      <div className="relative">
+                        <img
+                          src={schoolLogoPreview}
+                          alt="School logo preview"
+                          className="w-full h-32 object-cover rounded-md border"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={removeSchoolLogo}
+                          className="absolute top-2 right-2 h-8 w-8 p-0"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="border-2 border-dashed border-gray-300 rounded-md p-6">
+                        <div className="text-center">
+                          <ImageIcon className="mx-auto h-12 w-12 text-gray-400" />
+                          <div className="mt-4">
+                            <Label htmlFor="school_logo" className="cursor-pointer">
+                              <span className="mt-2 block text-sm font-medium text-gray-900">
+                                Upload school logo *
+                              </span>
+                              <span className="mt-1 block text-sm text-gray-500">
+                                PNG, JPG, WebP up to 5MB
+                              </span>
+                            </Label>
+                            <Input
+                              id="school_logo"
+                              type="file"
+                              accept="image/*"
+                              onChange={handleSchoolLogoChange}
+                              className="sr-only"
+                              required
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-sm text-gray-500 mt-1">
+                    This logo will be automatically added to the sponsor carousel on the homepage.
+                  </p>
+                </div>
                 
                 <div className="flex justify-end gap-3 pt-4">
                   <Button

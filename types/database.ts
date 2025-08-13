@@ -19,8 +19,11 @@ export interface Branch {
   name: string
   school_name: string
   location: string
-  leader_name: string
-  leader_email: string
+  leader_name: string | null
+  leader_email: string | null
+  leader_description: string | null
+  leader_image_url: string | null
+  image_url: string | null
   phone: string | null
   email: string | null
   address: string | null
@@ -148,12 +151,30 @@ export interface LogHoursFormData {
   eventId: string
 }
 
+export interface Sponsor {
+  id: number
+  name: string
+  logo_url: string
+  sponsor_type: 'school' | 'organization' | 'company'
+  branch_id: number | null
+  website_url: string | null
+  description: string | null
+  is_active: boolean
+  display_order: number
+  created_at: string
+  updated_at: string
+}
+
 export interface BranchFormData {
   name: string
   schoolName: string
   location: string
   leaderName: string
   leaderEmail: string
+  leaderDescription: string
+  imageUrl?: string
+  leaderImageUrl?: string
+  schoolLogoUrl?: string
   phone?: string
   email?: string
   address?: string

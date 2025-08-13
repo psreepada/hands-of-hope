@@ -1,65 +1,18 @@
 "use client"
 
-import { useCallback, useEffect, useRef } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import Image from "next/image"
 import useEmblaCarousel from "embla-carousel-react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
-
-const sponsors = [
-  {
-    name: "Fulton Academy",
-    image: "/images/rotating/facfb.png",
-  },
-  {
-    name: "Innovation Academy",
-    image: "/images/rotating/IAF.png",
-  },
-  {
-    name: "Cambridge High School",
-    image: "/images/rotating/CamF.png",
-  },
-  {
-    name: "Alpharetta High School",
-    image: "/images/rotating/alphaF.png",
-  },
-  {
-    name: "Chattahoochee High School",
-    image: "/images/rotating/hoochF.png",
-  },
-  {
-    name: "Open Hand Atlanta",
-    image: "/images/rotating/OpenHand.png",
-  },
-  {
-    name: "Atlanta Mission",
-    image: "/images/rotating/Atlanta Mission.png",
-  },
-  {
-    name: "Aiwyn",
-    image: "/images/rotating/aiwyn-logo-2.jpg",
-  },
-  {
-    name: "Milton High School",
-    image: "/images/rotating/mhs.png",
-  },
-  {
-    name: "Aden Bowman Collegiate",
-    image: "/images/rotating/abc.png",
-  },
-  {
-    name: "Centennial Collegiate",
-    image: "/images/rotating/colc.png",
-  },
-  {
-    name: "Jukebox",
-    image: "/images/rotating/jukebox.png",
-  },
-]
+import { supabase } from "@/lib/supabase"
+import { Sponsor } from "@/types/database"
 
 const AUTOPLAY_INTERVAL = 3000 
 
 export default function SponsorCarousel() {
+  const [sponsors, setSponsors] = useState<Sponsor[]>([])
+  const [loading, setLoading] = useState(true)
   const [emblaRef, emblaApi] = useEmblaCarousel({
     align: "center",
     loop: true,
@@ -77,7 +30,32 @@ export default function SponsorCarousel() {
     if (emblaApi) emblaApi.scrollNext()
   }, [emblaApi])
 
-  
+  // Fetch sponsors from database
+  useEffect(() => {
+    const fetchSponsors = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('sponsors')
+          .select('*')
+          .eq('is_active', true)
+          .order('display_order', { ascending: true })
+
+        if (error) {
+          console.error('Error fetching sponsors:', error)
+          return
+        }
+
+        setSponsors(data || [])
+      } catch (error) {
+        console.error('Error fetching sponsors:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchSponsors()
+  }, [])
+
   useEffect(() => {
     if (!emblaApi) return
 
@@ -110,18 +88,34 @@ export default function SponsorCarousel() {
     }
   }, [emblaApi])
 
+  if (loading) {
+    return (
+      <div className="relative w-full h-40 flex items-center justify-center">
+        <div className="text-gray-500">Loading sponsors...</div>
+      </div>
+    )
+  }
+
+  if (sponsors.length === 0) {
+    return (
+      <div className="relative w-full h-40 flex items-center justify-center">
+        <div className="text-gray-500">No sponsors found</div>
+      </div>
+    )
+  }
+
   return (
     <div className="relative w-full">
       <div className="overflow-hidden" ref={emblaRef}>
         <div className="flex">
           {sponsors.map((sponsor) => (
             <div
-              key={sponsor.name}
+              key={sponsor.id}
               className="flex-[0_0_300px] min-w-0 relative h-40 mx-8"
             >
               <div className="relative w-full h-full">
                 <Image
-                  src={sponsor.image}
+                  src={sponsor.logo_url}
                   alt={sponsor.name}
                   fill
                   className="object-contain"

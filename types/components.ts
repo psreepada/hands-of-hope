@@ -24,15 +24,15 @@ export interface BranchCardProps {
     name: string
     image: string
     phone: string
-    email: string
+    email?: string
     address: string
-    volunteers: number
-    events: number
-    description: string
-    meetingDay: string
-    meetingTime: string
-    leadName: string
-    leadTitle: string
+    volunteers?: number
+    events?: number
+    description?: string
+    meetingDay?: string
+    meetingTime?: string
+    leadName?: string
+    leadTitle?: string
   }
 }
 

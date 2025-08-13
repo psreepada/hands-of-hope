@@ -1,15 +1,12 @@
 "use client"
 
-import React, { useState } from "react"
+import React from "react"
 import Image from "next/image"
 import { Card } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { MapPin, Phone, Mail, Calendar, ChevronDown, ChevronUp, Clock } from "lucide-react"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { MapPin, Mail } from "lucide-react"
 import type { BranchCardProps } from "@/types"
 
 export default function BranchCard({ branch }: BranchCardProps): JSX.Element {
-  const [expanded, setExpanded] = useState(false)
 
   return (
     <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 border-2 border-teal-100 hover:border-teal-300">
@@ -27,15 +24,17 @@ export default function BranchCard({ branch }: BranchCardProps): JSX.Element {
       </div>
 
       <div className="p-6">
-        <div className="space-y-3 mb-4">
+        <div className="space-y-3">
           <div className="flex items-start gap-3">
             <MapPin className="h-5 w-5 text-teal-600 mt-0.5" />
             <span className="text-gray-700">{branch.address}</span>
           </div>
-          <div className="flex items-center gap-3">
-            <Phone className="h-5 w-5 text-teal-600" />
-            <span className="text-gray-700">{branch.phone}</span>
-          </div>
+          {branch.email && (
+            <div className="flex items-center gap-3">
+              <Mail className="h-5 w-5 text-teal-600" />
+              <span className="text-gray-700 text-sm">{branch.email}</span>
+            </div>
+          )}
         </div>
       </div>
     </Card>

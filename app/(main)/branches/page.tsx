@@ -1,84 +1,123 @@
+"use client"
+
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { Users, Calendar } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import { Users, Calendar, Search, Filter, MapPin, School } from "lucide-react"
 import BranchCard from "@/components/branch-card"
+import { useState, useEffect, useMemo } from "react"
+import { supabase } from "@/lib/supabase"
 
-const branches = [
-  {
-    id: 1,
-    name: "Innovation Academy",
-    image: "/images/ia.jpg",
-    phone: "(404)-877-8360",
-    address: "125 Milton Ave, Alpharetta, GA 30009",
-    email: "info@innovationacademy.edu",
-  },
-  {
-    id: 2,
-    name: "Cambridge High School",
-    image: "/images/cam.webp",
-    phone: "(470)-753-1914",
-    address: "2845 Bethany Bend, Milton, GA 30004",
-  },
-  {
-    id: 3,
-    name: "Alpharetta High School",
-    image: "/images/alpha.avif",
-    phone: "(470)-546-0995",
-    address: "3595 Webb Bridge Rd, Alpharetta, GA 30005"
-  },
-  {
-    id: 4,
-    name: "Chattahoochee High School",
-    image: "/images/hooch.webp",
-    phone: "(404)-877-8360",
-    address: "5230 Taylor Rd, Johns Creek, GA 30022"
-  },
-  {
-    id: 5,
-    name: "Milton High School",
-    image: "/images/milton.jpg",
-    phone: "(470)-213-9803",
-    address: "13025 Birmingham Hwy, Milton, GA 30004"
-  },
-  {
-    id: 6,
-    name: "Centennial Collegiate",
-    image: "/images/cent_canada.jpeg",
-    phone: "(639)-480-7689",
-    address: "160 Nelson Rd, Saskatoon, SK S7S 1P5"
-  },
-  {
-    id: 7,
-    name: "Aden Bowman Collegiate",
-    image: "/images/ABC.jpg",
-    phone: "(306)-999-0363",
-    address: "1904 Clarence Ave S, Saskatoon, SK S7J 1L3, Canada"
-  },
-  {
-    id: 8,
-    name: "Centennial High School",
-    image: "/images/Centennial high school.jpg",
-    phone: "(404)-514-2963",
-    address: "9310 Scott Rd, Roswell, GA 30076"
-  },
-  {
-    id: 9,
-    name: "Roswell High School",
-    image: "/images/Roswell High School.jpg",
-    phone: "(678)-522-8249",
-    address: "11595 King Rd, Roswell, GA 30075"
-  },
-  {
-    id: 10,
-    name: "Fulton Science Academy",
-    image: "/images/FSA.jpg",
-    phone: "(770)-222-7777",
-    address: "3035 Fanfare Way, Alpharetta, GA 30009"
-  }
-]
+interface Branch {
+  id: number
+  name: string
+  school_name: string
+  location: string
+  leader_name: string | null
+  leader_email: string | null
+  leader_phone: string | null
+  image_url: string | null
+  total_hours: number
+  total_events: number
+  total_users: number
+  created_at: string
+}
 
 export default function BranchesPage() {
+  const [branches, setBranches] = useState<Branch[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  
+  // Search and filter states
+  const [searchQuery, setSearchQuery] = useState("")
+  const [locationFilter, setLocationFilter] = useState("")
+  const [sortBy, setSortBy] = useState<"name" | "location" | "volunteers" | "events">("name")
+
+  useEffect(() => {
+    fetchBranches()
+  }, [])
+
+  const fetchBranches = async () => {
+    try {
+      setLoading(true)
+      setError(null)
+      
+      const { data, error: fetchError } = await supabase
+        .from('branches')
+        .select('*')
+        .order('name', { ascending: true })
+
+      if (fetchError) {
+        console.error('Error fetching branches:', fetchError)
+        setError('Failed to load branches. Please try again later.')
+        return
+      }
+
+      setBranches(data || [])
+    } catch (err) {
+      console.error('Unexpected error:', err)
+      setError('An unexpected error occurred. Please try again later.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Get unique locations for filter dropdown
+  const uniqueLocations = useMemo(() => {
+    const locations = branches.map(branch => branch.location)
+    return [...new Set(locations)].sort()
+  }, [branches])
+
+  // Filter and sort branches
+  const filteredAndSortedBranches = useMemo(() => {
+    let filtered = branches.filter(branch => {
+      const matchesSearch = searchQuery === "" || 
+        branch.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        branch.school_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        branch.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (branch.leader_name && branch.leader_name.toLowerCase().includes(searchQuery.toLowerCase()))
+      
+      const matchesLocation = locationFilter === "" || branch.location === locationFilter
+      
+      return matchesSearch && matchesLocation
+    })
+
+    // Sort the filtered results
+    filtered.sort((a, b) => {
+      switch (sortBy) {
+        case "name":
+          return a.name.localeCompare(b.name)
+        case "location":
+          return a.location.localeCompare(b.location)
+        case "volunteers":
+          return b.total_users - a.total_users
+        case "events":
+          return b.total_events - a.total_events
+        default:
+          return 0
+      }
+    })
+
+    return filtered
+  }, [branches, searchQuery, locationFilter, sortBy])
+
+  // Transform filtered branches data to match BranchCard expected format
+  const transformedBranches = filteredAndSortedBranches.map(branch => ({
+    id: branch.id,
+    name: branch.name,
+    image: branch.image_url || "/placeholder.svg",
+    phone: branch.leader_phone || "TBA",
+    email: branch.leader_email || "",
+    address: `${branch.school_name}, ${branch.location}`,
+    volunteers: branch.total_users,
+    events: branch.total_events,
+    description: `Branch at ${branch.school_name}`,
+    meetingDay: "Contact branch for details",
+    meetingTime: "Contact branch for details",
+    leadName: branch.leader_name || "TBA",
+    leadTitle: "Branch Leader"
+  }))
   return (
     <div className="flex min-h-screen flex-col">
       {}
@@ -212,11 +251,145 @@ export default function BranchesPage() {
             </p>
           </div>
 
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-2">
-            {branches.map((branch) => (
-              <BranchCard key={branch.id} branch={branch} />
-            ))}
+          {/* Search and Filter Section */}
+          <div className="max-w-4xl mx-auto mb-8">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <div className="flex flex-col md:flex-row gap-4">
+                {/* Search Input */}
+                <div className="flex-1">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <Input
+                      type="text"
+                      placeholder="Search branches by name, school, location, or leader..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="pl-10 pr-4 py-2 w-full border-gray-300 focus:border-teal-500 focus:ring-teal-500"
+                    />
+                  </div>
+                </div>
+
+                {/* Location Filter */}
+                <div className="md:w-48">
+                  <div className="relative">
+                    <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <select
+                      value={locationFilter}
+                      onChange={(e) => setLocationFilter(e.target.value)}
+                      className="pl-10 pr-8 py-2 w-full border border-gray-300 rounded-md focus:border-teal-500 focus:ring-teal-500 bg-white appearance-none"
+                    >
+                      <option value="">All Locations</option>
+                      {uniqueLocations.map(location => (
+                        <option key={location} value={location}>{location}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Sort By */}
+                <div className="md:w-48">
+                  <div className="relative">
+                    <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <select
+                      value={sortBy}
+                      onChange={(e) => setSortBy(e.target.value as "name" | "location" | "volunteers" | "events")}
+                      className="pl-10 pr-8 py-2 w-full border border-gray-300 rounded-md focus:border-teal-500 focus:ring-teal-500 bg-white appearance-none"
+                    >
+                      <option value="name">Sort by Name</option>
+                      <option value="location">Sort by Location</option>
+                      <option value="volunteers">Most Volunteers</option>
+                      <option value="events">Most Events</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              {/* Results Summary */}
+              {!loading && (
+                <div className="mt-4 text-sm text-gray-600 flex items-center justify-between">
+                  <span>
+                    Showing {transformedBranches.length} of {branches.length} branches
+                    {searchQuery && ` matching "${searchQuery}"`}
+                    {locationFilter && ` in ${locationFilter}`}
+                  </span>
+                  {(searchQuery || locationFilter) && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setSearchQuery("")
+                        setLocationFilter("")
+                      }}
+                      className="text-teal-600 hover:text-teal-700"
+                    >
+                      Clear filters
+                    </Button>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
+
+          {loading ? (
+            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-2">
+              {Array.from({ length: 6 }).map((_, index) => (
+                <Card key={index} className="animate-pulse">
+                  <div className="h-64 bg-gray-200"></div>
+                  <div className="p-6 space-y-3">
+                    <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                    <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                    <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          ) : error ? (
+            <div className="text-center py-12">
+              <div className="text-red-600 mb-4">
+                <Users className="h-12 w-12 mx-auto mb-2" />
+                <h3 className="text-lg font-medium">Error Loading Branches</h3>
+                <p className="text-sm">{error}</p>
+              </div>
+              <Button onClick={fetchBranches} variant="outline">
+                Try Again
+              </Button>
+            </div>
+          ) : transformedBranches.length === 0 ? (
+            <div className="text-center py-12">
+              <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              {branches.length === 0 ? (
+                <>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">No Branches Yet</h3>
+                  <p className="text-gray-600 mb-4">
+                    No branches have been created yet. Check back later or contact us to start a new branch.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">No Matching Branches</h3>
+                  <p className="text-gray-600 mb-4">
+                    No branches match your current search criteria. Try adjusting your filters or search terms.
+                  </p>
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setSearchQuery("")
+                      setLocationFilter("")
+                    }}
+                    className="text-teal-600 border-teal-600 hover:bg-teal-50"
+                  >
+                    Clear All Filters
+                  </Button>
+                </>
+              )}
+            </div>
+          ) : (
+            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-2">
+              {transformedBranches.map((branch) => (
+                <BranchCard key={branch.id} branch={branch} />
+              ))}
+            </div>
+          )}
         </div>
       </section>
     </div>
