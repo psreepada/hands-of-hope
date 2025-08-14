@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { LogOut, Shield, Users, Building, BarChart3, School, X, Plus, MapPin, ChevronDown, Trash2, Settings, Upload, Image as ImageIcon } from "lucide-react"
+import { LogOut, Shield, Users, Building, BarChart3, School, X, Plus, MapPin, ChevronDown, Trash2, Settings, Upload, Image as ImageIcon, AlertTriangle } from "lucide-react"
 import { useState, useEffect } from "react"
 import { supabase } from "@/lib/supabase"
 import { useRouter } from "next/navigation"
@@ -35,13 +35,10 @@ export default function SuperAdminPage() {
     name: "",
     school_name: "",
     location: "",
-    image_url: "",
-    school_logo_url: ""
+    image_url: ""
   })
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
-  const [schoolLogoFile, setSchoolLogoFile] = useState<File | null>(null)
-  const [schoolLogoPreview, setSchoolLogoPreview] = useState<string | null>(null)
   
   // Multiple leaders state
   const [leaders, setLeaders] = useState([{
@@ -54,6 +51,11 @@ export default function SuperAdminPage() {
     leader_image_url: ""
   }])
   const [createBranchLoading, setCreateBranchLoading] = useState(false)
+  
+  // Delete Branch Modal State
+  const [showDeleteBranchModal, setShowDeleteBranchModal] = useState(false)
+  const [branchToDelete, setBranchToDelete] = useState<any>(null)
+  const [deleteBranchLoading, setDeleteBranchLoading] = useState(false)
   
   // Role Management State
   const [roleUpdating, setRoleUpdating] = useState<string | null>(null)
@@ -198,13 +200,6 @@ export default function SuperAdminPage() {
         return
       }
 
-      // Validate school logo is provided
-      if (!schoolLogoFile) {
-        toast.error("Please upload a school logo")
-        setCreateBranchLoading(false)
-        return
-      }
-
       // Validate that we have at least one complete leader
       const validLeaders = leaders.filter(leader => 
         leader.leader_name.trim() && leader.leader_email.trim() && leader.leader_description.trim()
@@ -249,41 +244,7 @@ export default function SuperAdminPage() {
         }
       }
 
-      // Upload school logo
-      let schoolLogoUrl = ""
-      if (schoolLogoFile) {
-        try {
-          console.log("📤 Uploading school logo...")
-          
-          const fileExt = schoolLogoFile.name.split('.').pop()
-          const fileName = `school-logo-${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`
-          
-          const { data: uploadData, error: uploadError } = await supabase.storage
-            .from('branch-images')
-            .upload(fileName, schoolLogoFile)
 
-          if (uploadError) {
-            console.error("❌ School logo upload failed:", uploadError)
-            const errorMessage = uploadError.message || "Unknown storage error"
-            toast.error(`School logo upload failed: ${errorMessage}`)
-            setCreateBranchLoading(false)
-            return
-          } else {
-            // Get public URL
-            const { data: { publicUrl } } = supabase.storage
-              .from('branch-images')
-              .getPublicUrl(uploadData.path)
-            
-            schoolLogoUrl = publicUrl
-            console.log("✅ School logo uploaded successfully:", schoolLogoUrl)
-          }
-        } catch (error) {
-          console.error("❌ Unexpected error during school logo upload:", error)
-          toast.error("School logo upload failed unexpectedly")
-          setCreateBranchLoading(false)
-          return
-        }
-      }
 
       // Upload leader images for valid leaders
       const leadersWithImages = await Promise.all(
@@ -417,49 +378,17 @@ export default function SuperAdminPage() {
         console.log("✅ Leaders added successfully")
       }
 
-      // Create sponsor entry for the school
-      if (schoolLogoUrl) {
-        try {
-          console.log("📝 Creating sponsor entry...")
-          
-          const sponsorData = {
-            name: branchFormData.school_name,
-            logo_url: schoolLogoUrl,
-            sponsor_type: 'school',
-            branch_id: branchId,
-            is_active: true,
-            display_order: 0 // Will be updated later if needed
-          }
 
-          const { error: sponsorError } = await supabase
-            .from('sponsors')
-            .insert([sponsorData])
-
-          if (sponsorError) {
-            console.error("❌ Sponsor creation failed:", sponsorError)
-            toast.error("Branch created but failed to add sponsor: " + sponsorError.message)
-            // Don't return here - branch was created successfully
-          } else {
-            console.log("✅ Sponsor added successfully")
-          }
-        } catch (error) {
-          console.error("❌ Unexpected error creating sponsor:", error)
-          // Don't fail the whole process for sponsor creation
-        }
-      }
       
       // Reset form and close modal
       setBranchFormData({
         name: "",
         school_name: "",
         location: "",
-        image_url: "",
-        school_logo_url: ""
+        image_url: ""
       })
       setImageFile(null)
       setImagePreview(null)
-      setSchoolLogoFile(null)
-      setSchoolLogoPreview(null)
       setLeaders([{
         id: Date.now(),
         leader_name: "",
@@ -523,37 +452,143 @@ export default function SuperAdminPage() {
     setImagePreview(null)
   }
 
-  const handleSchoolLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) {
-      // Validate file type
-      const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/avif']
-      if (!allowedTypes.includes(file.type)) {
-        toast.error('Please select a valid image file (JPEG, PNG, WebP, or AVIF)')
-        return
-      }
-      
-      // Validate file size (max 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error('Image file must be less than 5MB')
-        return
-      }
-      
-      setSchoolLogoFile(file)
-      
-      // Create preview
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        setSchoolLogoPreview(e.target?.result as string)
-      }
-      reader.readAsDataURL(file)
-    }
-  }
 
-  const removeSchoolLogo = () => {
-    setSchoolLogoFile(null)
-    setSchoolLogoPreview(null)
-    setBranchFormData(prev => ({ ...prev, school_logo_url: "" }))
+
+  // Delete Branch Function
+  const handleDeleteBranch = async () => {
+    if (!branchToDelete) return
+    
+    setDeleteBranchLoading(true)
+    
+    try {
+      console.log("🗑️ Starting comprehensive branch deletion for:", branchToDelete.name)
+      
+      // Step 1: Get all related data before deletion
+      console.log("📋 Fetching related data...")
+      
+      // Get branch leaders and their images
+      const { data: branchLeaders, error: leadersError } = await supabase
+        .from('branch_leaders')
+        .select('leader_image_url')
+        .eq('branch_id', branchToDelete.id)
+      
+      if (leadersError) {
+        console.error("Error fetching branch leaders:", leadersError)
+      }
+      
+      // Get users in this branch (for their data cleanup)
+      const { data: branchUsers, error: usersError } = await supabase
+        .from('users')
+        .select('id, first_name, last_name')
+        .eq('branch_id', branchToDelete.id)
+      
+      if (usersError) {
+        console.error("Error fetching branch users:", usersError)
+      }
+      
+      // Get events created by this branch
+      const { data: branchEvents, error: eventsError } = await supabase
+        .from('events')
+        .select('id, name')
+        .eq('branch_id', branchToDelete.id)
+      
+      if (eventsError) {
+        console.error("Error fetching branch events:", eventsError)
+      }
+      
+      // Get hours requests from branch users
+      const branchUserIds = branchUsers?.map(user => user.id) || []
+      let hoursRequestsCount = 0
+      if (branchUserIds.length > 0) {
+        const { count, error: hoursError } = await supabase
+          .from('hours_requests')
+          .select('*', { count: 'exact', head: true })
+          .in('user_id', branchUserIds)
+        
+        if (!hoursError) {
+          hoursRequestsCount = count || 0
+        }
+      }
+      
+      console.log("📊 Found related data:")
+      console.log(`  - Branch Leaders: ${branchLeaders?.length || 0}`)
+      console.log(`  - Users: ${branchUsers?.length || 0}`)
+      console.log(`  - Events: ${branchEvents?.length || 0}`)
+      console.log(`  - Hours Requests: ${hoursRequestsCount}`)
+      
+      // Step 2: Delete images from storage
+      console.log("🖼️ Deleting images from storage...")
+      const imagesToDelete = []
+      
+      // Branch image
+      if (branchToDelete.image_url) {
+        const imagePath = branchToDelete.image_url.split('/').pop()
+        if (imagePath) {
+          imagesToDelete.push(imagePath)
+        }
+      }
+      
+      // Leader images
+      branchLeaders?.forEach(leader => {
+        if (leader.leader_image_url) {
+          const imagePath = leader.leader_image_url.split('/').pop()
+          if (imagePath) {
+            imagesToDelete.push(imagePath)
+          }
+        }
+      })
+      
+      // Delete images from storage
+      if (imagesToDelete.length > 0) {
+        console.log(`🗑️ Deleting ${imagesToDelete.length} images from storage...`)
+        const { error: storageError } = await supabase.storage
+          .from('branch-images')
+          .remove(imagesToDelete)
+        
+        if (storageError) {
+          console.error("❌ Error deleting images from storage:", storageError)
+          // Don't fail the whole process for storage errors
+        } else {
+          console.log("✅ Images deleted from storage successfully")
+        }
+      }
+      
+      // Step 3: Delete the branch (cascade will handle related data)
+      console.log("🗑️ Deleting branch record (cascade will handle related data)...")
+      const { error: branchDeleteError } = await supabase
+        .from('branches')
+        .delete()
+        .eq('id', branchToDelete.id)
+      
+      if (branchDeleteError) {
+        console.error("❌ Branch deletion failed:", branchDeleteError)
+        toast.error("Failed to delete branch: " + branchDeleteError.message)
+        setDeleteBranchLoading(false)
+        return
+      }
+      
+      console.log("✅ Branch and all related data deleted successfully")
+      
+      // Show success message with summary
+      toast.success(
+        `Branch "${branchToDelete.name}" and all related data deleted successfully! ` +
+        `Removed: ${branchUsers?.length || 0} users, ${branchEvents?.length || 0} events, ` +
+        `${hoursRequestsCount} hours requests, ${branchLeaders?.length || 0} leaders.`
+      )
+      
+      // Refresh data
+      await fetchData()
+      
+      // Close modal
+      setShowDeleteBranchModal(false)
+      setBranchToDelete(null)
+      
+    } catch (error) {
+      console.error("❌ Unexpected error during branch deletion:", error)
+      toast.error("Branch deletion failed unexpectedly")
+    } finally {
+      setDeleteBranchLoading(false)
+    }
   }
 
   // Helper functions for managing multiple leaders
@@ -1042,13 +1077,24 @@ export default function SuperAdminPage() {
                       <h3 className="font-semibold text-gray-800">{branch.name}</h3>
                       <p className="text-sm text-gray-600">{branch.school_name}</p>
                     </div>
-                    {branch.join_code && (
-                      <div className="text-right">
+                    <div className="flex items-center gap-2">
+                      {branch.join_code && (
                         <span className="text-sm font-mono bg-blue-100 text-blue-800 px-3 py-1 rounded-full border border-blue-200">
                           {branch.join_code}
                         </span>
-                      </div>
-                    )}
+                      )}
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setBranchToDelete(branch)
+                          setShowDeleteBranchModal(true)
+                        }}
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
                   <div className="flex items-center gap-1 text-sm text-gray-600 mb-2">
                     <MapPin className="h-4 w-4" />
@@ -1495,57 +1541,6 @@ export default function SuperAdminPage() {
                     This will be displayed on the branches page to represent the branch.
                   </p>
                 </div>
-
-                <div>
-                  <Label htmlFor="school_logo">School Logo *</Label>
-                  <div className="mt-1">
-                    {schoolLogoPreview ? (
-                      <div className="relative">
-                        <img
-                          src={schoolLogoPreview}
-                          alt="School logo preview"
-                          className="w-full h-32 object-cover rounded-md border"
-                        />
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={removeSchoolLogo}
-                          className="absolute top-2 right-2 h-8 w-8 p-0"
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    ) : (
-                      <div className="border-2 border-dashed border-gray-300 rounded-md p-6">
-                        <div className="text-center">
-                          <ImageIcon className="mx-auto h-12 w-12 text-gray-400" />
-                          <div className="mt-4">
-                            <Label htmlFor="school_logo" className="cursor-pointer">
-                              <span className="mt-2 block text-sm font-medium text-gray-900">
-                                Upload school logo *
-                              </span>
-                              <span className="mt-1 block text-sm text-gray-500">
-                                PNG, JPG, WebP up to 5MB
-                              </span>
-                            </Label>
-                            <Input
-                              id="school_logo"
-                              type="file"
-                              accept="image/*"
-                              onChange={handleSchoolLogoChange}
-                              className="sr-only"
-                              required
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                  <p className="text-sm text-gray-500 mt-1">
-                    This logo will be automatically added to the sponsor carousel on the homepage.
-                  </p>
-                </div>
                 
                 <div className="flex justify-end gap-3 pt-4">
                   <Button
@@ -1652,6 +1647,81 @@ export default function SuperAdminPage() {
         )}
 
         {/* Final User Deletion Confirmation Modal */}
+        {/* Delete Branch Confirmation Modal */}
+        {showDeleteBranchModal && branchToDelete && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
+              <div className="flex justify-between items-center p-6 border-b">
+                <h3 className="text-lg font-semibold text-red-800">Delete Branch</h3>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setShowDeleteBranchModal(false)
+                    setBranchToDelete(null)
+                  }}
+                  className="h-8 w-8 p-0"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+              
+              <div className="p-6 text-center">
+                <AlertTriangle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+                <p className="text-lg font-semibold text-red-700 mb-2">
+                  Delete "{branchToDelete.name}"?
+                </p>
+                <p className="text-sm text-gray-600 mb-4">
+                  {branchToDelete.school_name} • {branchToDelete.location}
+                </p>
+                <div className="bg-red-50 p-4 rounded-lg mb-6 text-left">
+                  <p className="text-sm font-medium text-red-800 mb-2">
+                    ⚠️ This will permanently delete:
+                  </p>
+                  <ul className="text-sm text-red-700 space-y-1">
+                    <li>• All branch data and settings</li>
+                    <li>• All branch leaders and their profiles</li>
+                    <li>• All users/members in this branch</li>
+                    <li>• All events created by this branch</li>
+                    <li>• All volunteer hours and requests</li>
+                    <li>• All uploaded images (branch & leader photos)</li>
+                  </ul>
+                  <p className="text-sm font-semibold text-red-800 mt-3">
+                    This action cannot be undone!
+                  </p>
+                </div>
+                <div className="flex gap-3">
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setShowDeleteBranchModal(false)
+                      setBranchToDelete(null)
+                    }}
+                    className="flex-1"
+                    disabled={deleteBranchLoading}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={handleDeleteBranch}
+                    disabled={deleteBranchLoading}
+                    className="flex-1 bg-red-600 hover:bg-red-700"
+                  >
+                    {deleteBranchLoading ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        Deleting...
+                      </>
+                    ) : (
+                      'Delete Branch'
+                    )}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+        
         {showFinalDeleteModal && userToDelete && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">

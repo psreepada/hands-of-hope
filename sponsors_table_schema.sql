@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS sponsors (
     name VARCHAR(255) NOT NULL,
     logo_url TEXT NOT NULL,
     sponsor_type VARCHAR(50) DEFAULT 'school', -- 'school', 'organization', 'company'
-    branch_id INT REFERENCES branches(id) ON DELETE SET NULL, -- Link to branch for school sponsors
+    branch_id INT REFERENCES branches(id) ON DELETE CASCADE, -- Link to branch for school sponsors
     website_url TEXT,
     description TEXT,
     is_active BOOLEAN DEFAULT TRUE,

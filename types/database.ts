@@ -174,7 +174,6 @@ export interface BranchFormData {
   leaderDescription: string
   imageUrl?: string
   leaderImageUrl?: string
-  schoolLogoUrl?: string
   phone?: string
   email?: string
   address?: string

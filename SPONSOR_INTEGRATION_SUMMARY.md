@@ -1,7 +1,9 @@
 # School Logo and Sponsor Integration Summary
 
 ## Overview
-Added functionality to the create branch form to collect school logos and automatically create sponsor entries for display in the homepage sponsor carousel.
+~~Added functionality to the create branch form to collect school logos and automatically create sponsor entries for display in the homepage sponsor carousel.~~
+
+**FEATURE REMOVED**: The automatic school logo to sponsor integration has been removed per user request. Schools will NOT be automatically added to the sponsor carousel when creating branches.
 
 ## Changes Made
 
@@ -51,18 +53,24 @@ Added functionality to the create branch form to collect school logos and automa
 - Updated rendering to use `sponsor.logo_url` and `sponsor.id` instead of hardcoded values
 - Added loading and empty states for better UX
 
-## Workflow
+## ~~Workflow~~ (REMOVED)
+~~1. Admin creates a new branch via the super-admin form~~
+~~2. Admin uploads school logo (required field)~~
+~~3. System uploads logo to Supabase storage~~
+~~4. System creates branch record~~
+~~5. System automatically creates sponsor entry with:~~
+   ~~- Name: school name from form~~
+   ~~- Logo: uploaded school logo URL~~
+   ~~- Type: 'school'~~
+   ~~- Branch ID: newly created branch ID~~
+   ~~- Active: true~~
+~~6. New sponsor appears in homepage carousel automatically~~
+
+**NEW WORKFLOW**: 
 1. Admin creates a new branch via the super-admin form
-2. Admin uploads school logo (required field)
-3. System uploads logo to Supabase storage
-4. System creates branch record
-5. System automatically creates sponsor entry with:
-   - Name: school name from form
-   - Logo: uploaded school logo URL
-   - Type: 'school'
-   - Branch ID: newly created branch ID
-   - Active: true
-6. New sponsor appears in homepage carousel automatically
+2. Only branch image and leader information are collected
+3. Sponsors must be managed separately through the database
+4. No automatic sponsor creation occurs
 
 ## Database Migration Required
 Before using this feature, run the `sponsors_table_schema.sql` script in your Supabase SQL Editor to create the sponsors table and migrate existing sponsor data.

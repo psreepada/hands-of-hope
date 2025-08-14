@@ -74,8 +74,15 @@ export default function AIChatbot() {
   }, [messages])
 
   useEffect(() => {
-    if (isOpen && inputRef.current && !isMobile) {
-      inputRef.current.focus()
+    if (isOpen && inputRef.current) {
+      // Small delay to ensure the modal is fully rendered before focusing
+      const timer = setTimeout(() => {
+        if (inputRef.current) {
+          inputRef.current.focus()
+        }
+      }, isMobile ? 300 : 100)
+      
+      return () => clearTimeout(timer)
     }
   }, [isOpen, isMobile])
 
@@ -181,7 +188,7 @@ export default function AIChatbot() {
         )}>
           {isMobile && (
             <div 
-              className="absolute inset-0" 
+              className="absolute inset-0 z-0" 
               onClick={() => setIsOpen(false)}
             />
           )}
@@ -189,7 +196,7 @@ export default function AIChatbot() {
           <Card className={cn(
             "shadow-2xl border-2 border-teal-200 bg-white backdrop-blur-sm",
             isMobile 
-              ? "absolute bottom-0 left-0 right-0 h-[85vh] rounded-t-3xl rounded-b-none animate-slide-up-mobile"
+              ? "absolute bottom-0 left-0 right-0 h-[85vh] rounded-t-3xl rounded-b-none animate-slide-up-mobile z-10"
               : "w-80 h-[600px] relative"
           )}>
             <CardHeader className={cn(
@@ -236,7 +243,10 @@ export default function AIChatbot() {
               </div>
             </CardHeader>
             
-            <CardContent className="p-0 h-full flex flex-col">
+            <CardContent className={cn(
+              "p-0 flex flex-col",
+              isMobile ? "h-[calc(85vh-120px)]" : "h-[calc(600px-120px)]"
+            )}>
               {/* Messages Area */}
               <ScrollArea className={cn(
                 "flex-1",
@@ -321,10 +331,13 @@ export default function AIChatbot() {
               
               {/* Input Area */}
               <div className={cn(
-                "border-t border-gray-200 bg-gray-50/80 backdrop-blur-sm",
-                isMobile ? "p-4 pb-6 safe-area-inset-bottom" : "p-4"
+                "flex-shrink-0 border-t border-gray-200 bg-gray-50/80 backdrop-blur-sm",
+                isMobile ? "p-4 pb-6" : "p-4"
               )}>
-                <div className="flex gap-3 items-end">
+                <div className={cn(
+                  "flex gap-3 items-end",
+                  isMobile && "pb-safe"
+                )}>
                   <Textarea
                     ref={inputRef}
                     value={inputValue}
@@ -332,7 +345,7 @@ export default function AIChatbot() {
                     onKeyPress={handleKeyPress}
                     placeholder={isMobile ? "Type a message..." : "Type your message..."}
                     className={cn(
-                      "flex-1 border-gray-300 focus:border-teal-500 focus:ring-teal-500 resize-none rounded-xl",
+                      "flex-1 border-gray-300 focus:border-teal-500 focus:ring-teal-500 resize-none rounded-xl bg-white",
                       isMobile 
                         ? "text-base min-h-[48px] max-h-[120px] px-4 py-3" 
                         : "text-sm min-h-[40px] max-h-[120px] px-3 py-2"

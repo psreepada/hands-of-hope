@@ -18,6 +18,8 @@ export default function SponsorCarousel() {
     loop: true,
     slidesToScroll: 1,
     containScroll: "trimSnaps",
+    skipSnaps: false,
+    dragFree: false,
   })
 
   const autoplayRef = useRef<NodeJS.Timeout>()
@@ -46,6 +48,7 @@ export default function SponsorCarousel() {
         }
 
         setSponsors(data || [])
+        console.log('Sponsors loaded:', data?.length || 0, 'sponsors')
       } catch (error) {
         console.error('Error fetching sponsors:', error)
       } finally {
@@ -57,36 +60,82 @@ export default function SponsorCarousel() {
   }, [])
 
   useEffect(() => {
-    if (!emblaApi) return
+    if (!emblaApi || sponsors.length === 0) return
+
+    // Only enable autoplay if we have multiple sponsors
+    if (sponsors.length <= 1) {
+      console.log('Not enough sponsors for autoplay, need at least 2, have:', sponsors.length)
+      return
+    }
 
     const startAutoplay = () => {
+      // Clear any existing interval first
+      if (autoplayRef.current) {
+        clearInterval(autoplayRef.current)
+      }
+      
       autoplayRef.current = setInterval(() => {
-        emblaApi.scrollNext()
+        if (emblaApi && emblaApi.canScrollNext()) {
+          emblaApi.scrollNext()
+        } else if (emblaApi && !emblaApi.canScrollNext()) {
+          // If can't scroll next, go to first slide
+          emblaApi.scrollTo(0)
+        }
       }, AUTOPLAY_INTERVAL)
     }
 
     const stopAutoplay = () => {
       if (autoplayRef.current) {
         clearInterval(autoplayRef.current)
+        autoplayRef.current = undefined
       }
     }
 
+    // Start autoplay initially
+    console.log('Starting autoplay for', sponsors.length, 'sponsors')
     startAutoplay()
 
-    
-    const onUserInteraction = () => {
+    // Handle user interactions
+    const onPointerDown = () => {
       stopAutoplay()
     }
 
-    emblaApi.on('pointerDown', onUserInteraction)
-    emblaApi.on('pointerUp', () => startAutoplay())
+    const onPointerUp = () => {
+      // Restart autoplay after a short delay
+      setTimeout(startAutoplay, 1000)
+    }
+
+    // Also handle mouse enter/leave for better UX
+    const onMouseEnter = () => {
+      stopAutoplay()
+    }
+
+    const onMouseLeave = () => {
+      startAutoplay()
+    }
+
+    // Add event listeners
+    emblaApi.on('pointerDown', onPointerDown)
+    emblaApi.on('pointerUp', onPointerUp)
+    
+    // Get the container element for mouse events
+    const container = emblaApi.containerNode()
+    if (container) {
+      container.addEventListener('mouseenter', onMouseEnter)
+      container.addEventListener('mouseleave', onMouseLeave)
+    }
 
     return () => {
       stopAutoplay()
-      emblaApi.off('pointerDown', onUserInteraction)
-      emblaApi.off('pointerUp', () => startAutoplay())
+      emblaApi.off('pointerDown', onPointerDown)
+      emblaApi.off('pointerUp', onPointerUp)
+      
+      if (container) {
+        container.removeEventListener('mouseenter', onMouseEnter)
+        container.removeEventListener('mouseleave', onMouseLeave)
+      }
     }
-  }, [emblaApi])
+  }, [emblaApi, sponsors.length])
 
   if (loading) {
     return (
@@ -107,11 +156,11 @@ export default function SponsorCarousel() {
   return (
     <div className="relative w-full">
       <div className="overflow-hidden" ref={emblaRef}>
-        <div className="flex">
+        <div className="flex transition-transform duration-300">
           {sponsors.map((sponsor) => (
             <div
               key={sponsor.id}
-              className="flex-[0_0_300px] min-w-0 relative h-40 mx-8"
+              className="flex-[0_0_280px] min-w-0 relative h-40 mx-4"
             >
               <div className="relative w-full h-full">
                 <Image
@@ -119,6 +168,11 @@ export default function SponsorCarousel() {
                   alt={sponsor.name}
                   fill
                   className="object-contain"
+                  onError={(e) => {
+                    console.warn(`Failed to load sponsor image for ${sponsor.name}:`, sponsor.logo_url)
+                    // Hide the sponsor if image fails to load
+                    e.currentTarget.parentElement?.parentElement?.setAttribute('style', 'display: none;')
+                  }}
                 />
               </div>
             </div>
