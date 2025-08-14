@@ -111,7 +111,7 @@ export default function Home() {
               </div>
               <h3 className="text-2xl font-bold text-teal-800 mb-1">Contributed</h3>
               <p className="text-3xl font-bold text-yellow-500 mb-2">
-                <AnimatedCounter end={Math.round(stats?.totalHours || 1270)} />
+                <AnimatedCounter end={(1270)} />
               </p>
               <p className="text-lg text-gray-600">combined volunteer hours</p>
             </div>
