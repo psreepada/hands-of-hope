@@ -2,13 +2,15 @@
 
 import { useAuth } from "@/hooks/useAuth"
 import { useAuthRedirect } from "@/hooks/useAuthRedirect"
+import { useDebounce } from "@/hooks/useDebounce"
+import { useOptimizedFetch } from "@/hooks/useOptimizedFetch"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { LogOut, Shield, Users, Building, Calendar, BarChart3, School, X, Plus, MapPin, Clock, ChevronDown, CheckCircle, Trash2, AlertTriangle } from "lucide-react"
-import { useState, useEffect, memo } from "react"
+import { useState, useEffect, memo, useCallback, useMemo } from "react"
 import { supabase } from "@/lib/supabase"
 import { useRouter } from "next/navigation"
 import { AdminSkeleton } from "@/components/ui/skeleton-loader"
@@ -55,6 +57,7 @@ export default function AdminPage() {
   
   // Search State
   const [memberSearchQuery, setMemberSearchQuery] = useState("")
+  const debouncedSearchQuery = useDebounce(memberSearchQuery, 300)
   
   // Filter State
   const [roleFilter, setRoleFilter] = useState("all") // all, admin, member
@@ -136,7 +139,7 @@ export default function AdminPage() {
       setShowCreateEventModal(false)
       
       // Refresh the events list by re-fetching all data
-      await fetchBranchData()
+      refetchBranchData()
       
       toast.success("🎉 Event created successfully!")
 
@@ -152,11 +155,12 @@ export default function AdminPage() {
     setEventFormData(prev => ({ ...prev, [field]: value }))
   }
 
-  const getEventSignupCount = (event: any) => {
+  // 🚀 PERFORMANCE OPTIMIZATION: Memoize event signup count calculation
+  const getEventSignupCount = useCallback((event: any) => {
     return event.event_signups?.filter(
       (signup: any) => signup.signup_status === 'registered'
     ).length || 0
-  }
+  }, [])
 
   const handleViewRegistrations = async (event: any) => {
     setSelectedEventForRegistrations(event)
@@ -220,7 +224,7 @@ export default function AdminPage() {
       console.log("✅ Role updated successfully")
       
       // Refresh the branch data to show updated roles
-      await fetchBranchData()
+      refetchBranchData()
       
       toast.success(`Role updated to ${newRole} successfully!`)
 
@@ -336,8 +340,8 @@ export default function AdminPage() {
       setShowFinalDeleteModal(false)
       setUserToDelete(null)
       setDeleteConfirmationText("")
-      await fetchBranchData()
-      await fetchHourRequests()
+      refetchBranchData()
+      refetchHourRequests()
 
     } catch (error) {
       console.error("❌ Unexpected error during user deletion:", error)
@@ -347,58 +351,62 @@ export default function AdminPage() {
     }
   }
 
-  const filteredBranchUsers = branchUsers.filter(member => {
-    // Search filter
-    if (memberSearchQuery.trim()) {
-      const searchLower = memberSearchQuery.toLowerCase()
-      const fullName = `${member.first_name} ${member.last_name}`.toLowerCase()
-      const email = member.email.toLowerCase()
+  // 🚀 PERFORMANCE OPTIMIZATION: Memoize filtered users
+  const filteredBranchUsers = useMemo(() => {
+    return branchUsers.filter(member => {
+      // Search filter using debounced query
+      if (debouncedSearchQuery.trim()) {
+        const searchLower = debouncedSearchQuery.toLowerCase()
+        const fullName = `${member.first_name} ${member.last_name}`.toLowerCase()
+        const email = member.email.toLowerCase()
+        
+        if (!fullName.includes(searchLower) && !email.includes(searchLower)) {
+          return false
+        }
+      }
       
-      if (!fullName.includes(searchLower) && !email.includes(searchLower)) {
+      // Role filter
+      if (roleFilter !== "all" && member.role !== roleFilter) {
         return false
       }
-    }
-    
-    // Role filter
-    if (roleFilter !== "all" && member.role !== roleFilter) {
-      return false
-    }
-    
-    // Hours filter
-    const memberHours = member.total_hours || 0
-    if (hoursFilter !== "all") {
-      if (hoursFilter === "0-10" && (memberHours < 0 || memberHours > 10)) return false
-      if (hoursFilter === "11-25" && (memberHours < 11 || memberHours > 25)) return false
-      if (hoursFilter === "26-50" && (memberHours < 26 || memberHours > 50)) return false
-      if (hoursFilter === "51+" && memberHours < 51) return false
-    }
-    
-    // Events filter
-    const memberEvents = member.total_events_attended || 0
-    if (eventsFilter !== "all") {
-      if (eventsFilter === "0-2" && (memberEvents < 0 || memberEvents > 2)) return false
-      if (eventsFilter === "3-5" && (memberEvents < 3 || memberEvents > 5)) return false
-      if (eventsFilter === "6-10" && (memberEvents < 6 || memberEvents > 10)) return false
-      if (eventsFilter === "11+" && memberEvents < 11) return false
-    }
-    
-    return true
-  })
+      
+      // Hours filter
+      const memberHours = member.total_hours || 0
+      if (hoursFilter !== "all") {
+        if (hoursFilter === "0-10" && (memberHours < 0 || memberHours > 10)) return false
+        if (hoursFilter === "11-25" && (memberHours < 11 || memberHours > 25)) return false
+        if (hoursFilter === "26-50" && (memberHours < 26 || memberHours > 50)) return false
+        if (hoursFilter === "51+" && memberHours < 51) return false
+      }
+      
+      // Events filter
+      const memberEvents = member.total_events_attended || 0
+      if (eventsFilter !== "all") {
+        if (eventsFilter === "0-2" && (memberEvents < 0 || memberEvents > 2)) return false
+        if (eventsFilter === "3-5" && (memberEvents < 3 || memberEvents > 5)) return false
+        if (eventsFilter === "6-10" && (memberEvents < 6 || memberEvents > 10)) return false
+        if (eventsFilter === "11+" && memberEvents < 11) return false
+      }
+      
+      return true
+    })
+  }, [branchUsers, debouncedSearchQuery, roleFilter, hoursFilter, eventsFilter])
 
-  const clearAllFilters = () => {
+  const clearAllFilters = useCallback(() => {
     setMemberSearchQuery("")
     setRoleFilter("all")
     setHoursFilter("all")
     setEventsFilter("all")
-  }
+  }, [])
 
-  const hasActiveFilters = memberSearchQuery.trim() || roleFilter !== "all" || hoursFilter !== "all" || eventsFilter !== "all"
+  const hasActiveFilters = useMemo(() => {
+    return debouncedSearchQuery.trim() || roleFilter !== "all" || hoursFilter !== "all" || eventsFilter !== "all"
+  }, [debouncedSearchQuery, roleFilter, hoursFilter, eventsFilter])
 
-  const fetchHourRequests = async () => {
+  const fetchHourRequests = useCallback(async () => {
     if (!user?.branch_id) {
       console.warn("⚠️ Admin user doesn't have a branch_id for hour requests")
-      setHourRequests([])
-      return
+      return []
     }
     
     try {
@@ -423,19 +431,20 @@ export default function AdminPage() {
         `)
         .eq('users.branch_id', user.branch_id)
         .order('created_at', { ascending: false })
+        .limit(100) // Add limit for better performance
 
       if (error) {
         console.error("❌ Hour requests fetch error:", error)
-        setHourRequests([])
-      } else {
-        console.log("✅ Hour requests:", requests)
-        setHourRequests(requests || [])
+        throw error
       }
+
+      console.log("✅ Hour requests:", requests)
+      return requests || []
     } catch (error) {
       console.error("❌ Error fetching hour requests:", error)
-      setHourRequests([])
+      throw error
     }
-  }
+  }, [user?.branch_id])
 
   const handleApproveHours = async (requestId: string, action: 'approve' | 'decline') => {
     setApproveHoursLoading(true)
@@ -559,8 +568,8 @@ export default function AdminPage() {
       setEditingHours("")
       setAdminNotes("")
       
-      await fetchHourRequests()
-      await fetchBranchData() // Refresh to update user stats
+      refetchHourRequests()
+      refetchBranchData() // Refresh to update user stats
       
       toast.success(`🎉 Hour request ${action}d successfully!`)
 
@@ -572,11 +581,10 @@ export default function AdminPage() {
     }
   }
 
-  const fetchBranchData = async () => {
+  const fetchBranchData = useCallback(async () => {
     if (!user?.branch_id) {
       console.warn("⚠️ Admin user doesn't have a branch_id")
-      setDataLoading(false)
-      return
+      throw new Error('No branch_id')
     }
     
     console.log("🔍 Fetching data for branch_id:", user.branch_id)
@@ -601,7 +609,7 @@ export default function AdminPage() {
           .select('id, first_name, last_name, email, role, total_hours, total_events_attended, created_at')
           .eq('branch_id', user.branch_id)
           .order('created_at', { ascending: false })
-          .limit(100), // Limit to 100 users for better performance
+          .limit(75), // Reduced limit for better performance
 
         // Fetch branch events (limit fields and results)
         supabase
@@ -617,7 +625,7 @@ export default function AdminPage() {
             max_participants,
             event_type,
             status,
-            event_signups (
+            event_signups!inner (
               id,
               user_id,
               signup_status
@@ -625,57 +633,88 @@ export default function AdminPage() {
           `)
           .eq('branch_id', user.branch_id)
           .order('event_date', { ascending: false })
-          .limit(50) // Limit to 50 events for better performance
+          .limit(30) // Reduced limit for better performance
       ])
 
-      // Process branch data
       if (branchError) {
         console.error("❌ Branch fetch error:", branchError)
-        setBranchData(null)
-      } else {
-        console.log("✅ Branch data:", branch)
-        setBranchData(branch)
+        throw branchError
       }
 
-      // Process users data
       if (usersError) {
         console.error("❌ Users fetch error:", usersError)
-        setBranchUsers([])
-        setTotalHours(0)
-      } else {
-        console.log("✅ Branch users:", users)
-        setBranchUsers(users || [])
-        
-        // Calculate total volunteer hours for this branch
-        const totalBranchHours = (users || []).reduce((sum, user) => sum + (user.total_hours || 0), 0)
-        setTotalHours(totalBranchHours)
+        throw usersError
       }
 
-      // Process events data
       if (eventsError) {
         console.error("❌ Events fetch error:", eventsError)
-        setBranchEvents([])
-      } else {
-        console.log("✅ Branch events:", events)
-        setBranchEvents(events || [])
+        throw eventsError
+      }
+
+      // Calculate total volunteer hours for this branch
+      const totalBranchHours = (users || []).reduce((sum, user) => sum + (user.total_hours || 0), 0)
+
+      return {
+        branch,
+        users: users || [],
+        events: events || [],
+        totalHours: totalBranchHours
       }
 
     } catch (error) {
       console.error("❌ Error fetching branch data:", error)
-    } finally {
-      setDataLoading(false)
+      throw error
     }
-  }
+  }, [user?.branch_id])
+
+  // 🚀 PERFORMANCE OPTIMIZATION: Use optimized fetch hooks
+  const { data: branchDataResult, loading: branchLoading, refetch: refetchBranchData } = useOptimizedFetch(
+    fetchBranchData,
+    [user?.branch_id],
+    {
+      enabled: !!user?.branch_id,
+      onSuccess: (data) => {
+        if (data) {
+          setBranchData(data.branch)
+          setBranchUsers(data.users)
+          setBranchEvents(data.events)
+          setTotalHours(data.totalHours)
+        }
+      },
+      onError: () => {
+        setBranchData(null)
+        setBranchUsers([])
+        setBranchEvents([])
+        setTotalHours(0)
+      }
+    }
+  )
+
+  const { data: hourRequestsData, loading: hourRequestsLoading, refetch: refetchHourRequests } = useOptimizedFetch(
+    fetchHourRequests,
+    [user?.branch_id],
+    {
+      enabled: !!user?.branch_id,
+      onSuccess: (data) => {
+        setHourRequests(data || [])
+      },
+      onError: () => {
+        setHourRequests([])
+      }
+    }
+  )
+
+  // Update loading states
+  useEffect(() => {
+    setDataLoading(branchLoading || hourRequestsLoading)
+  }, [branchLoading, hourRequestsLoading])
 
   useEffect(() => {
-    if (user?.branch_id) {
-      fetchBranchData()
-      fetchHourRequests()
-    } else if (user && !user.branch_id) {
+    if (user && !user.branch_id) {
       // If user is loaded but doesn't have a branch_id, set loading to false
       setDataLoading(false)
     }
-  }, [user?.branch_id, user])
+  }, [user])
 
   if (loading || dataLoading) {
     return <AdminSkeleton />

@@ -2,13 +2,15 @@
 
 import { useAuth } from "@/hooks/useAuth"
 import { useAuthRedirect } from "@/hooks/useAuthRedirect"
+import { useDebounce } from "@/hooks/useDebounce"
+import { useOptimizedFetch } from "@/hooks/useOptimizedFetch"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { LogOut, Shield, Users, Building, BarChart3, School, X, Plus, MapPin, ChevronDown, Trash2, Settings, Upload, Image as ImageIcon, AlertTriangle } from "lucide-react"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback, useMemo, memo } from "react"
 import { supabase } from "@/lib/supabase"
 import { useRouter } from "next/navigation"
 import { SuperAdminSkeleton } from "@/components/ui/skeleton-loader"
@@ -72,6 +74,10 @@ export default function SuperAdminPage() {
   const [branchHoursFilter, setBranchHoursFilter] = useState("all") // all, 0-50, 51-200, 201-500, 501+
   const [branchEventsFilter, setBranchEventsFilter] = useState("all") // all, 0-2, 3-8, 9-15, 16+
   
+  // Debounced search queries for better performance
+  const debouncedUserSearchQuery = useDebounce(userSearchQuery, 300)
+  const debouncedBranchSearchQuery = useDebounce(branchSearchQuery, 300)
+  
   // Delete User State
   const [showDeleteUserModal, setShowDeleteUserModal] = useState(false)
   const [userToDelete, setUserToDelete] = useState<any>(null)
@@ -86,9 +92,7 @@ export default function SuperAdminPage() {
     await signOut()
   }
 
-    const fetchOrganizationData = async () => {
-    setDataLoading(true)
-    
+  const fetchOrganizationData = useCallback(async () => {
     try {
       // 🚀 PERFORMANCE OPTIMIZATION: Execute all queries in parallel
       const [
@@ -101,7 +105,7 @@ export default function SuperAdminPage() {
           .from('branches')
           .select('id, name, school_name, location, leader_name, leader_email, join_code, created_at, total_hours, total_events, total_users')
           .order('created_at', { ascending: false })
-          .limit(100), // Limit to 100 branches
+          .limit(75), // Reduced limit for better performance
 
         // Fetch all users with branch information (limit fields and results)
         supabase
@@ -124,67 +128,71 @@ export default function SuperAdminPage() {
             )
           `)
           .order('created_at', { ascending: false })
-          .limit(500), // Limit to 500 users for better performance
+          .limit(300), // Reduced limit for better performance
 
         // Fetch all events to get actual event count (limit fields)
         supabase
           .from('events')
           .select('id, branch_id, created_at')
-          .limit(1000) // Limit to 1000 events
+          .limit(500) // Reduced limit for better performance
       ])
+
+      if (branchesError) {
+        console.error("❌ Branches fetch error:", branchesError)
+        throw branchesError
+      }
 
       if (usersError) {
         console.error("❌ Users fetch error:", usersError)
-      } else {
-        console.log("✅ All users:", users)
-        setAllUsers(users || [])
-        
-        // Calculate actual branch statistics from user data
-        if (branches && users) {
-          const branchesWithStats = branches.map(branch => {
-            const branchUsers = users.filter(user => user.branch_id === branch.id)
-            const userCount = branchUsers.length
-            const totalHours = branchUsers.reduce((sum, user) => sum + (user.total_hours || 0), 0)
-            const branchEventCount = allEvents?.filter(event => event.branch_id === branch.id).length || 0
-            
-            return {
-              ...branch,
-              actual_user_count: userCount,
-              actual_total_hours: totalHours,
-              actual_total_events: branchEventCount
-            }
-          })
-          
-          console.log("✅ Branches with calculated stats:", branchesWithStats)
-          setAllBranches(branchesWithStats || [])
-        } else {
-          setAllBranches(branches || [])
-        }
-        
-        // Calculate organization stats
-        const totalUsers = users?.length || 0
-        const totalBranches = branches?.length || 0
-        const totalHours = users?.reduce((sum, user) => sum + (user.total_hours || 0), 0) || 0
-        const totalEvents = allEvents?.length || 0 // Count of actual events created
-        
-        setOrganizationStats({
-          totalUsers,
-          totalBranches,
-          totalHours,
-          totalEvents
-        })
+        throw usersError
       }
 
       if (eventsError) {
         console.error("❌ Events fetch error:", eventsError)
+        throw eventsError
+      }
+
+      console.log("✅ All users:", users)
+      
+      // Calculate actual branch statistics from user data
+      const branchesWithStats = branches?.map(branch => {
+        const branchUsers = users?.filter(user => user.branch_id === branch.id) || []
+        const userCount = branchUsers.length
+        const totalHours = branchUsers.reduce((sum, user) => sum + (user.total_hours || 0), 0)
+        const branchEventCount = allEvents?.filter(event => event.branch_id === branch.id).length || 0
+        
+        return {
+          ...branch,
+          actual_user_count: userCount,
+          actual_total_hours: totalHours,
+          actual_total_events: branchEventCount
+        }
+      }) || []
+      
+      console.log("✅ Branches with calculated stats:", branchesWithStats)
+      
+      // Calculate organization stats
+      const totalUsers = users?.length || 0
+      const totalBranches = branches?.length || 0
+      const totalHours = users?.reduce((sum, user) => sum + (user.total_hours || 0), 0) || 0
+      const totalEvents = allEvents?.length || 0 // Count of actual events created
+      
+      return {
+        branches: branchesWithStats,
+        users: users || [],
+        organizationStats: {
+          totalUsers,
+          totalBranches,
+          totalHours,
+          totalEvents
+        }
       }
 
     } catch (error) {
       console.error("❌ Error fetching organization data:", error)
-    } finally {
-      setDataLoading(false)
+      throw error
     }
-  }
+  }, [])
 
   const handleCreateBranch = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -305,7 +313,9 @@ export default function SuperAdminPage() {
 
         if (checkError) {
           console.error("❌ Error checking join code:", checkError)
-          break
+          toast.error("Failed to validate join code: " + checkError.message)
+          setCreateBranchLoading(false)
+          return
         }
 
         if (!existingBranches || existingBranches.length === 0) {
@@ -403,9 +413,7 @@ export default function SuperAdminPage() {
       toast.success(`🎉 Branch created successfully! Join Code: ${joinCode}`)
       
       // Refresh data in background (don't wait for it)
-      fetchOrganizationData().catch(error => {
-        console.error("❌ Error refreshing data:", error)
-      })
+      refetchOrganizationData()
 
     } catch (error) {
       console.error("❌ Unexpected error creating branch:", error)
@@ -577,7 +585,7 @@ export default function SuperAdminPage() {
       )
       
       // Refresh data
-      await fetchData()
+      refetchOrganizationData()
       
       // Close modal
       setShowDeleteBranchModal(false)
@@ -676,7 +684,7 @@ export default function SuperAdminPage() {
       console.log("✅ Role updated successfully")
       
       // Refresh the organization data
-      await fetchOrganizationData()
+      refetchOrganizationData()
       
       toast.success(`Role updated to ${newRole} successfully!`)
 
@@ -765,110 +773,144 @@ export default function SuperAdminPage() {
     }
   }
 
-  // Filter users based on search and filter criteria
-  const filteredUsers = allUsers.filter(user => {
-    // Search filter
-    if (userSearchQuery.trim()) {
-      const searchLower = userSearchQuery.toLowerCase()
-      const fullName = `${user.first_name} ${user.last_name}`.toLowerCase()
-      const email = user.email.toLowerCase()
-      const branchName = user.branches?.name?.toLowerCase() || ""
+  // 🚀 PERFORMANCE OPTIMIZATION: Memoize filtered users
+  const filteredUsers = useMemo(() => {
+    return allUsers.filter(user => {
+      // Search filter using debounced query
+      if (debouncedUserSearchQuery.trim()) {
+        const searchLower = debouncedUserSearchQuery.toLowerCase()
+        const fullName = `${user.first_name} ${user.last_name}`.toLowerCase()
+        const email = user.email.toLowerCase()
+        const branchName = user.branches?.name?.toLowerCase() || ""
+        
+        if (!fullName.includes(searchLower) && !email.includes(searchLower) && !branchName.includes(searchLower)) {
+          return false
+        }
+      }
       
-      if (!fullName.includes(searchLower) && !email.includes(searchLower) && !branchName.includes(searchLower)) {
+      // Role filter
+      if (roleFilter !== "all" && user.role !== roleFilter) {
         return false
       }
-    }
-    
-    // Role filter
-    if (roleFilter !== "all" && user.role !== roleFilter) {
-      return false
-    }
-    
-    // Branch filter
-    if (branchFilter !== "all" && user.branch_id?.toString() !== branchFilter) {
-      return false
-    }
-    
-    // Hours filter
-    const userHours = user.total_hours || 0
-    if (hoursFilter !== "all") {
-      if (hoursFilter === "0-10" && (userHours < 0 || userHours > 10)) return false
-      if (hoursFilter === "11-25" && (userHours < 11 || userHours > 25)) return false
-      if (hoursFilter === "26-50" && (userHours < 26 || userHours > 50)) return false
-      if (hoursFilter === "51+" && userHours < 51) return false
-    }
-    
-    return true
-  })
-
-  // Filter branches based on search and filter criteria
-  const filteredBranches = allBranches.filter(branch => {
-    // Search filter
-    if (branchSearchQuery.trim()) {
-      const searchLower = branchSearchQuery.toLowerCase()
-      const name = branch.name.toLowerCase()
-      const schoolName = branch.school_name.toLowerCase()
-      const location = branch.location.toLowerCase()
-      const leaderName = branch.leader_name?.toLowerCase() || ""
       
-      if (!name.includes(searchLower) && !schoolName.includes(searchLower) && 
-          !location.includes(searchLower) && !leaderName.includes(searchLower)) {
+      // Branch filter
+      if (branchFilter !== "all" && user.branch_id?.toString() !== branchFilter) {
         return false
       }
-    }
-    
-    // User count filter
-    const userCount = branch.actual_user_count || 0
-    if (branchUserFilter !== "all") {
-      if (branchUserFilter === "0-5" && (userCount < 0 || userCount > 5)) return false
-      if (branchUserFilter === "6-15" && (userCount < 6 || userCount > 15)) return false
-      if (branchUserFilter === "16-30" && (userCount < 16 || userCount > 30)) return false
-      if (branchUserFilter === "31+" && userCount < 31) return false
-    }
-    
-    // Hours filter
-    const totalHours = branch.actual_total_hours || 0
-    if (branchHoursFilter !== "all") {
-      if (branchHoursFilter === "0-50" && (totalHours < 0 || totalHours > 50)) return false
-      if (branchHoursFilter === "51-200" && (totalHours < 51 || totalHours > 200)) return false
-      if (branchHoursFilter === "201-500" && (totalHours < 201 || totalHours > 500)) return false
-      if (branchHoursFilter === "501+" && totalHours < 501) return false
-    }
-    
-    // Events filter
-    const eventCount = branch.actual_total_events || 0
-    if (branchEventsFilter !== "all") {
-      if (branchEventsFilter === "0-2" && (eventCount < 0 || eventCount > 2)) return false
-      if (branchEventsFilter === "3-8" && (eventCount < 3 || eventCount > 8)) return false
-      if (branchEventsFilter === "9-15" && (eventCount < 9 || eventCount > 15)) return false
-      if (branchEventsFilter === "16+" && eventCount < 16) return false
-    }
-    
-    return true
-  })
+      
+      // Hours filter
+      const userHours = user.total_hours || 0
+      if (hoursFilter !== "all") {
+        if (hoursFilter === "0-10" && (userHours < 0 || userHours > 10)) return false
+        if (hoursFilter === "11-25" && (userHours < 11 || userHours > 25)) return false
+        if (hoursFilter === "26-50" && (userHours < 26 || userHours > 50)) return false
+        if (hoursFilter === "51+" && userHours < 51) return false
+      }
+      
+      return true
+    })
+  }, [allUsers, debouncedUserSearchQuery, roleFilter, branchFilter, hoursFilter])
 
-  const clearAllFilters = () => {
+  // 🚀 PERFORMANCE OPTIMIZATION: Memoize filtered branches
+  const filteredBranches = useMemo(() => {
+    return allBranches.filter(branch => {
+      // Search filter using debounced query
+      if (debouncedBranchSearchQuery.trim()) {
+        const searchLower = debouncedBranchSearchQuery.toLowerCase()
+        const name = branch.name.toLowerCase()
+        const schoolName = branch.school_name.toLowerCase()
+        const location = branch.location.toLowerCase()
+        const leaderName = branch.leader_name?.toLowerCase() || ""
+        
+        if (!name.includes(searchLower) && !schoolName.includes(searchLower) && 
+            !location.includes(searchLower) && !leaderName.includes(searchLower)) {
+          return false
+        }
+      }
+      
+      // User count filter
+      const userCount = branch.actual_user_count || 0
+      if (branchUserFilter !== "all") {
+        if (branchUserFilter === "0-5" && (userCount < 0 || userCount > 5)) return false
+        if (branchUserFilter === "6-15" && (userCount < 6 || userCount > 15)) return false
+        if (branchUserFilter === "16-30" && (userCount < 16 || userCount > 30)) return false
+        if (branchUserFilter === "31+" && userCount < 31) return false
+      }
+      
+      // Hours filter
+      const totalHours = branch.actual_total_hours || 0
+      if (branchHoursFilter !== "all") {
+        if (branchHoursFilter === "0-50" && (totalHours < 0 || totalHours > 50)) return false
+        if (branchHoursFilter === "51-200" && (totalHours < 51 || totalHours > 200)) return false
+        if (branchHoursFilter === "201-500" && (totalHours < 201 || totalHours > 500)) return false
+        if (branchHoursFilter === "501+" && totalHours < 501) return false
+      }
+      
+      // Events filter
+      const eventCount = branch.actual_total_events || 0
+      if (branchEventsFilter !== "all") {
+        if (branchEventsFilter === "0-2" && (eventCount < 0 || eventCount > 2)) return false
+        if (branchEventsFilter === "3-8" && (eventCount < 3 || eventCount > 8)) return false
+        if (branchEventsFilter === "9-15" && (eventCount < 9 || eventCount > 15)) return false
+        if (branchEventsFilter === "16+" && eventCount < 16) return false
+      }
+      
+      return true
+    })
+  }, [allBranches, debouncedBranchSearchQuery, branchUserFilter, branchHoursFilter, branchEventsFilter])
+
+  const clearAllFilters = useCallback(() => {
     setUserSearchQuery("")
     setRoleFilter("all")
     setBranchFilter("all")
     setHoursFilter("all")
-  }
+  }, [])
 
-  const clearBranchFilters = () => {
+  const clearBranchFilters = useCallback(() => {
     setBranchSearchQuery("")
     setBranchUserFilter("all")
     setBranchHoursFilter("all")
     setBranchEventsFilter("all")
-  }
+  }, [])
 
-  const hasActiveFilters = userSearchQuery.trim() || roleFilter !== "all" || branchFilter !== "all" || hoursFilter !== "all"
-  const hasActiveBranchFilters = branchSearchQuery.trim() || branchUserFilter !== "all" || branchHoursFilter !== "all" || branchEventsFilter !== "all"
+  const hasActiveFilters = useMemo(() => {
+    return debouncedUserSearchQuery.trim() || roleFilter !== "all" || branchFilter !== "all" || hoursFilter !== "all"
+  }, [debouncedUserSearchQuery, roleFilter, branchFilter, hoursFilter])
+  
+  const hasActiveBranchFilters = useMemo(() => {
+    return debouncedBranchSearchQuery.trim() || branchUserFilter !== "all" || branchHoursFilter !== "all" || branchEventsFilter !== "all"
+  }, [debouncedBranchSearchQuery, branchUserFilter, branchHoursFilter, branchEventsFilter])
 
-  useEffect(() => {
-    if (user?.role === 'super-admin') {
-      fetchOrganizationData()
+  // 🚀 PERFORMANCE OPTIMIZATION: Use optimized fetch hook
+  const { data: organizationData, loading: organizationLoading, refetch: refetchOrganizationData } = useOptimizedFetch(
+    fetchOrganizationData,
+    [user?.role],
+    {
+      enabled: user?.role === 'super-admin',
+      onSuccess: (data) => {
+        if (data) {
+          setAllBranches(data.branches)
+          setAllUsers(data.users)
+          setOrganizationStats(data.organizationStats)
+        }
+      },
+      onError: () => {
+        setAllBranches([])
+        setAllUsers([])
+        setOrganizationStats({
+          totalUsers: 0,
+          totalBranches: 0,
+          totalHours: 0,
+          totalEvents: 0
+        })
+      }
     }
-  }, [user?.role])
+  )
+
+  // Update loading state
+  useEffect(() => {
+    setDataLoading(organizationLoading)
+  }, [organizationLoading])
 
   if (loading || dataLoading) {
     return <SuperAdminSkeleton />

@@ -227,8 +227,13 @@ export default function Home() {
                 </span>
               </div>
               <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-teal-800">
-                Earn the Prestigious <span className="text-yellow-600">Presidential Volunteer Service Award</span>
+                <span className="text-yellow-600">Presidential Volunteer Service Award</span> - Temporarily Paused
               </h2>
+              <div className="mt-4 p-4 bg-yellow-100 border-l-4 border-yellow-500 rounded-r-lg">
+                <p className="text-lg text-yellow-800 font-medium">
+                  Note: The PVSA program is currently paused as the new U.S. president has not yet reinitiated the program after taking office. We will update this section once the program resumes.
+                </p>
+              </div>
             </div>
 
             {}

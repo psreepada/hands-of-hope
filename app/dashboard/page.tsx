@@ -3,6 +3,8 @@
 import React from "react"
 import { useAuth } from "@/hooks/useAuth"
 import { useAuthRedirect } from "@/hooks/useAuthRedirect"
+import { useDebounce } from "@/hooks/useDebounce"
+import { useOptimizedFetch } from "@/hooks/useOptimizedFetch"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -10,7 +12,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { LogOut, User, Calendar, Clock, Award, Settings, MapPin, Users, X, CheckCircle, Plus, Upload, FileImage, AlertTriangle, Edit3, Trash2, ArrowRightLeft, Building2 } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { useState, useEffect, useMemo } from "react"
+import { useState, useEffect, useMemo, useCallback, memo } from "react"
 import { supabase } from "@/lib/supabase"
 import { DashboardSkeleton } from "@/components/ui/skeleton-loader"
 import toast, { Toaster } from 'react-hot-toast'
@@ -339,45 +341,33 @@ export default function DashboardPage(): JSX.Element {
     }
   }
 
-  const fetchDashboardData = async () => {
-    if (!user?.email) return
+  const fetchDashboardData = useCallback(async () => {
+    if (!user?.email) return null
     
     try {
       console.log("📊 Fetching dashboard data for user email:", user.email, "branch:", user.branch_id)
 
-      // First, get the database user ID and stats using email
-      const { data: userData, error: userError } = await supabase
-        .from('users')
-        .select('id, total_hours, total_events_attended')
-        .eq('email', user.email)
-        .single()
-
-      if (userError || !userData) {
-        console.error("❌ User lookup failed:", userError)
-        setDataLoading(false)
-        return
-      }
-
-      const databaseUserId = userData.id
-      console.log("✅ Found database user ID:", databaseUserId)
-
-      setUserStats({
-        totalHours: userData.total_hours || 0,
-        eventsAttended: userData.total_events_attended || 0
-      })
-
-      // Fetch user's event signups
-      const { data: signups, error: signupsError } = await supabase
-        .from('event_signups')
-        .select('id, event_id, user_id, signup_status, hours_earned, notes, created_at, updated_at')
-        .eq('user_id', databaseUserId)
-
-      // Only fetch branch events if user has a branch_id
-      let events: any[] = []
-      let eventsError: any = null
-      
-      if (hasBranchId) {
-        const eventsResult = await supabase
+      // 🚀 PERFORMANCE OPTIMIZATION: Execute all queries in parallel
+      const [
+        { data: userData, error: userError },
+        { data: signups, error: signupsError },
+        { data: events, error: eventsError }
+      ] = await Promise.all([
+        // Get user data
+        supabase
+          .from('users')
+          .select('id, total_hours, total_events_attended')
+          .eq('email', user.email)
+          .single(),
+        
+        // Get user signups (we'll filter by user_id after getting userData)
+        supabase
+          .from('event_signups')
+          .select('id, event_id, user_id, signup_status, hours_earned, notes, created_at, updated_at')
+          .limit(50), // Limit for performance
+        
+        // Get branch events only if user has branch_id
+        hasBranchId ? supabase
           .from('events')
           .select(`
             id,
@@ -390,7 +380,7 @@ export default function DashboardPage(): JSX.Element {
             max_participants,
             event_type,
             status,
-            event_signups (
+            event_signups!inner (
               id,
               user_id,
               signup_status
@@ -400,41 +390,40 @@ export default function DashboardPage(): JSX.Element {
           .eq('status', 'upcoming')
           .gte('event_date', new Date().toISOString().split('T')[0])
           .order('event_date', { ascending: true })
-          .limit(20) // Limit to 20 upcoming events for better performance
-        
-        events = eventsResult.data || []
-        eventsError = eventsResult.error
+          .limit(15) // Reduced limit for better performance
+        : Promise.resolve({ data: [], error: null })
+      ])
+
+      if (userError || !userData) {
+        console.error("❌ User lookup failed:", userError)
+        throw new Error('User lookup failed')
       }
 
-      // Process events data
-      if (eventsError) {
-        console.error("❌ Events fetch error:", eventsError)
-        setBranchEvents([])
-      } else {
-        console.log("✅ Branch events:", events)
-        setBranchEvents(events || [])
-      }
+      const databaseUserId = userData.id
+      console.log("✅ Found database user ID:", databaseUserId)
 
-      // Process signups data
-      if (signupsError) {
-        console.error("❌ Signups fetch error:", signupsError)
-        setUserSignups([])
-      } else {
-        console.log("✅ User signups:", signups)
-        setUserSignups(signups || [])
-      }
+      // Filter signups for this user only
+      const userSignupsFiltered = signups?.filter(signup => signup.user_id === databaseUserId) || []
 
-      // Fetch recent activity (can be done in parallel with UI updates)
-      fetchRecentActivity(databaseUserId)
+      return {
+        userStats: {
+          totalHours: userData.total_hours || 0,
+          eventsAttended: userData.total_events_attended || 0
+        },
+        events: events || [],
+        signups: userSignupsFiltered,
+        databaseUserId
+      }
 
     } catch (error) {
       console.error("❌ Error fetching dashboard data:", error)
-    } finally {
-      setDataLoading(false)
+      throw error
     }
-  }
+  }, [user?.email, user?.branch_id, hasBranchId])
 
-  const fetchRecentActivity = async (databaseUserId: string) => {
+  const fetchRecentActivity = useCallback(async (databaseUserId: string) => {
+    if (!databaseUserId) return []
+    
     try {
       console.log("📋 Fetching hour request status updates for user:", databaseUserId)
 
@@ -459,13 +448,11 @@ export default function DashboardPage(): JSX.Element {
         .in('status', ['pending', 'approved', 'declined'])
         .gte('created_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()) // Reduced to 30 days
         .order('created_at', { ascending: false })
-        .limit(8) // Reduced to 8 for better performance
+        .limit(6) // Further reduced for better performance
 
       if (hoursError || !hourRequests) {
         console.error("❌ Hour requests fetch error:", hoursError)
-        setRecentActivity([])
-        setActivityLoading(false)
-        return
+        return []
       }
 
       // 🚀 OPTIMIZED: Process activities with better performance
@@ -534,15 +521,13 @@ export default function DashboardPage(): JSX.Element {
       })
 
       console.log("✅ Hour request status updates:", activities)
-      setRecentActivity(activities)
+      return activities
 
     } catch (error) {
       console.error("❌ Error fetching hour request status updates:", error)
-      setRecentActivity([])
-    } finally {
-      setActivityLoading(false)
+      return []
     }
-  }
+  }, [])
 
   const handleEventSignup = async () => {
     if (!selectedEvent || !user?.email) return
@@ -626,7 +611,7 @@ export default function DashboardPage(): JSX.Element {
       toast.success("🎉 Successfully registered for the event!")
 
       // Refresh the events to update signup counts
-      fetchDashboardData()
+      refetchDashboard()
 
     } catch (error) {
       console.error("❌ Unexpected signup error:", error)
@@ -867,7 +852,7 @@ export default function DashboardPage(): JSX.Element {
       setShowLogHoursModal(false)
       
       // Refresh dashboard data to update recent activity
-      fetchDashboardData()
+      refetchDashboard()
       
       toast.success("🎉 Hour request submitted successfully! Your request will be reviewed by an admin.")
 
@@ -883,9 +868,38 @@ export default function DashboardPage(): JSX.Element {
     setLogHoursData(prev => ({ ...prev, [field]: value }))
   }
 
+  // 🚀 PERFORMANCE OPTIMIZATION: Use optimized fetch hook
+  const { data: dashboardData, loading: dashboardLoading, refetch: refetchDashboard } = useOptimizedFetch(
+    fetchDashboardData,
+    [user?.email, user?.branch_id],
+    {
+      enabled: !!user?.email,
+      onSuccess: async (data) => {
+        if (data) {
+          setUserStats(data.userStats)
+          setBranchEvents(data.events)
+          setUserSignups(data.signups)
+          
+          // Fetch recent activity in background
+          const activities = await fetchRecentActivity(data.databaseUserId)
+          setRecentActivity(activities)
+          setActivityLoading(false)
+        }
+      },
+      onError: () => {
+        setDataLoading(false)
+        setActivityLoading(false)
+      }
+    }
+  )
+
+  // Update loading states based on optimized fetch
+  useEffect(() => {
+    setDataLoading(dashboardLoading)
+  }, [dashboardLoading])
+
   useEffect(() => {
     if (user?.email) {
-      fetchDashboardData()
       fetchBranchInfo()
     }
   }, [user?.email, user?.branch_id])
