@@ -24,13 +24,13 @@ const crew = [
   {
     name: "Michael",
     position: "COO",
-    image: "/images/micheal.jpg",
+    image: "/images/mnew.jpg",
     bio: "Michael oversees our day-to-day operations, ensuring smooth execution of our programs and initiatives across all branches."
   },
   {
     name: "Arthur",
     position: "CMO",
-    image: "/images/ARTHUR.jpg",
+    image: "/images/anew.png",
     bio: "Arthur drives our marketing and outreach efforts, helping us connect with more communities and expand our impact."
   },
 ]
@@ -178,7 +178,7 @@ export default function CrewPage() {
             </Card>
             <Card className="overflow-hidden border-2 border-teal-100 hover:border-teal-200 transition-colors max-w-xs mx-auto w-full shadow-sm hover:shadow-md">
               <div className="relative max-w-[320px] mx-auto" style={{ aspectRatio: '3/4' }}>
-                <Image src="/images/shu.jpg" alt="Shubham Trivedi" fill className="object-cover"/>
+                <Image src="/images/snew.jpeg" alt="Shubham Trivedi" fill className="object-cover"/>
               </div>
               <div className="p-5 text-center">
                 <h3 className="text-xl font-bold text-teal-800 mb-2">Shubham Trivedi</h3>
