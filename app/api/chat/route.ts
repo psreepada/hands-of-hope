@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenAI } from "@google/genai";
 
-// Context about Hands of Hope for the AI
 const HANDS_OF_HOPE_CONTEXT = `
 Cofounders Daksh Shah and Shubham Trivedi as well as the chief executives will remain a part of this organization even after highschool. 
 
@@ -145,7 +144,7 @@ export async function POST(request: NextRequest) {
 
 User Question: ${message}
 
-Please provide a helpful, informative response about Hands of Hope based on the user's question. Keep your response conversational and encouraging.`;
+Please provide a helpful, informative response about Hands of Hope based on the user's question. Keep your response conversational and encouraging. Most importanly do not write more than a 100 words per message (you may go over this limits only in certain situations). Be as concise as possible.`;
 
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
