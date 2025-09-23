@@ -45,7 +45,7 @@ export default function Home() {
                 <span className="text-yellow-400">Hands</span> of <span className="text-yellow-400">Hope</span>
               </h1>
               <p className="text-xl md:text-2xl text-white/90">
-                Empowering the homeless and high school students at the same timethrough compassion and community action
+                Uplifting both the homeless and high school students through compassion-driven service and united community action.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button
@@ -77,7 +77,7 @@ export default function Home() {
               </span>
             </h2>
             <p className="text-xl text-gray-700 leading-relaxed relative">
-              At Hands of Hope, we strive to provide high school students with the opportunity to empower the homeless and the people in need through dedicated in-person volunteer efforts, fundraisers, and kit-packing events sponsered by our organization, as well as rewarding them with an awards ceremony to recognize their efforts.
+              At Hands of Hope, we transform the compassion of high school students into meaningful action by connecting them directly with communities in need. Through hands-on volunteer work, creative fundraisers, and impactful kit-packing events, we empower youth to become leaders of change. To honor their dedication, we celebrate their contributions in an awards ceremony that shines a light on the meaningful work they have done.
             </p>
           </div>
         </div>
