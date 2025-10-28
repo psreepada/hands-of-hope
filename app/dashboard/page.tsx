@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { LogOut, User, Calendar, Clock, Award, Settings, MapPin, Users, X, CheckCircle, Plus, Upload, FileImage, AlertTriangle, Edit3, Trash2, ArrowRightLeft, Building2 } from "lucide-react"
+import { LogOut, User, Calendar, Clock, Award, Settings, MapPin, Users, X, CheckCircle, Plus, Upload, FileImage, AlertTriangle, Edit3, Trash2, ArrowRightLeft, Building2, RefreshCw } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useState, useEffect, useMemo, useCallback, memo } from "react"
 import { supabase } from "@/lib/supabase"
@@ -26,7 +26,7 @@ import type {
 } from '@/types'
 
 export default function DashboardPage(): JSX.Element {
-  const { user, signOut, loading } = useAuth()
+  const { user, signOut, loading, refreshSession } = useAuth()
   const router = useRouter()
   const [branchEvents, setBranchEvents] = useState<EventWithSignups[]>([])
   const [userSignups, setUserSignups] = useState<EventSignup[]>([])
@@ -55,6 +55,9 @@ export default function DashboardPage(): JSX.Element {
   // Recent Activity State
   const [recentActivity, setRecentActivity] = useState<Activity[]>([])
   const [activityLoading, setActivityLoading] = useState<boolean>(true)
+  
+  // Manual Refresh State
+  const [isRefreshing, setIsRefreshing] = useState<boolean>(false)
 
   // Settings Modal State
   const [showSettingsModal, setShowSettingsModal] = useState<boolean>(false)
@@ -73,6 +76,59 @@ export default function DashboardPage(): JSX.Element {
 
   const handleSignOut = async () => {
     await signOut()
+  }
+
+  // Validate session before critical operations
+  const validateSession = async () => {
+    if (!refreshSession) {
+      console.warn('refreshSession not available')
+      return true // Proceed anyway if function not available
+    }
+    
+    try {
+      const isValid = await refreshSession()
+      if (!isValid) {
+        toast.error('Your session has expired. Please log in again.')
+        await signOut()
+        router.push('/login')
+        return false
+      }
+      return true
+    } catch (error) {
+      console.error('Session validation error:', error)
+      toast.error('Session validation failed. Please try logging in again.')
+      return false
+    }
+  }
+
+  // Safe modal opener for Log Hours
+  const openLogHoursModal = async () => {
+    const isValid = await validateSession()
+    if (isValid) {
+      setShowLogHoursModal(true)
+    }
+  }
+
+  // Manual refresh function
+  const handleManualRefresh = async () => {
+    setIsRefreshing(true)
+    try {
+      // First validate/refresh session
+      const isValid = await validateSession()
+      if (!isValid) {
+        setIsRefreshing(false)
+        return
+      }
+      
+      // Then refetch all dashboard data
+      await refetchDashboard()
+      toast.success('Dashboard refreshed successfully!')
+    } catch (error) {
+      console.error('Error refreshing dashboard:', error)
+      toast.error('Failed to refresh dashboard. Please try again.')
+    } finally {
+      setIsRefreshing(false)
+    }
   }
 
   const fetchBranchInfo = async () => {
@@ -345,6 +401,15 @@ export default function DashboardPage(): JSX.Element {
     if (!user?.email) return null
     
     try {
+      // Validate/refresh session before fetching data
+      if (refreshSession) {
+        const isValid = await refreshSession()
+        if (!isValid) {
+          console.error('Session invalid, cannot fetch dashboard data')
+          throw new Error('Session expired')
+        }
+      }
+      
       console.log("📊 Fetching dashboard data for user email:", user.email, "branch:", user.branch_id)
 
       // 🚀 PERFORMANCE OPTIMIZATION: Execute all queries in parallel
@@ -419,7 +484,7 @@ export default function DashboardPage(): JSX.Element {
       console.error("❌ Error fetching dashboard data:", error)
       throw error
     }
-  }, [user?.email, user?.branch_id, hasBranchId])
+  }, [user?.email, user?.branch_id, hasBranchId, refreshSession])
 
   const fetchRecentActivity = useCallback(async (databaseUserId: string) => {
     if (!databaseUserId) return []
@@ -783,6 +848,13 @@ export default function DashboardPage(): JSX.Element {
     setLogHoursLoading(true)
 
     try {
+      // Validate session before submitting
+      const isValid = await validateSession()
+      if (!isValid) {
+        setLogHoursLoading(false)
+        return
+      }
+
       console.log("📝 Submitting hour request:", logHoursData)
 
       // Validate form
@@ -868,12 +940,14 @@ export default function DashboardPage(): JSX.Element {
     setLogHoursData(prev => ({ ...prev, [field]: value }))
   }
 
-  // 🚀 PERFORMANCE OPTIMIZATION: Use optimized fetch hook
+  // 🚀 PERFORMANCE OPTIMIZATION: Use optimized fetch hook with retry
   const { data: dashboardData, loading: dashboardLoading, refetch: refetchDashboard } = useOptimizedFetch(
     fetchDashboardData,
     [user?.email, user?.branch_id],
     {
       enabled: !!user?.email,
+      retry: 2,
+      retryDelay: 1500,
       onSuccess: async (data) => {
         if (data) {
           setUserStats(data.userStats)
@@ -889,6 +963,7 @@ export default function DashboardPage(): JSX.Element {
       onError: () => {
         setDataLoading(false)
         setActivityLoading(false)
+        toast.error('Failed to load dashboard data. Please try refreshing.')
       }
     }
   )
@@ -913,7 +988,7 @@ export default function DashboardPage(): JSX.Element {
       {/* Action Buttons (fixed, stacked) */}
       <div className="fixed bottom-8 right-8 z-50 flex flex-col items-end gap-4">
         <Button
-          onClick={() => setShowLogHoursModal(true)}
+          onClick={openLogHoursModal}
           className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-full shadow-lg transition-all duration-200 w-40 flex items-center justify-center gap-2"
         >
           <Plus className="h-4 w-4" />
@@ -966,6 +1041,16 @@ export default function DashboardPage(): JSX.Element {
           </div>
           
           <div className="flex items-center gap-3">
+            <Button
+              onClick={handleManualRefresh}
+              variant="outline"
+              disabled={isRefreshing}
+              className="flex items-center gap-2"
+              title="Refresh dashboard data"
+            >
+              <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+              Refresh
+            </Button>
             <Button
               onClick={() => setShowSettingsModal(true)}
               variant="outline"

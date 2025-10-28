@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { User, Session } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
 import type { AuthUser, UseAuthReturn, SupabaseError } from '@/types'
@@ -10,6 +10,48 @@ export const useAuth = (): UseAuthReturn => {
   const [user, setUser] = useState<AuthUser | null>(null)
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState<boolean>(true)
+
+  // Function to refresh session if needed
+  const refreshSession = useCallback(async () => {
+    try {
+      const { data: { session: currentSession }, error } = await supabase.auth.getSession()
+      
+      if (error) {
+        console.error('Session refresh error:', error)
+        return false
+      }
+      
+      if (!currentSession) {
+        console.log('No active session found')
+        return false
+      }
+      
+      // Check if session is expiring soon (within 5 minutes)
+      const expiresAt = currentSession.expires_at
+      if (expiresAt) {
+        const expiresIn = expiresAt - Math.floor(Date.now() / 1000)
+        if (expiresIn < 300) { // Less than 5 minutes
+          console.log('Session expiring soon, refreshing...')
+          const { data: { session: newSession }, error: refreshError } = await supabase.auth.refreshSession()
+          
+          if (refreshError) {
+            console.error('Failed to refresh session:', refreshError)
+            return false
+          }
+          
+          if (newSession) {
+            setSession(newSession)
+            return true
+          }
+        }
+      }
+      
+      return true
+    } catch (error) {
+      console.error('Error in refreshSession:', error)
+      return false
+    }
+  }, [])
 
   useEffect(() => {
     // Get initial session
@@ -29,6 +71,7 @@ export const useAuth = (): UseAuthReturn => {
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('Auth state changed:', event)
         setSession(session)
         
         if (session?.user) {
@@ -41,8 +84,19 @@ export const useAuth = (): UseAuthReturn => {
       }
     )
 
-    return () => subscription.unsubscribe()
-  }, [])
+    // Set up periodic session check (every 4 minutes)
+    const sessionCheckInterval = setInterval(async () => {
+      const refreshed = await refreshSession()
+      if (!refreshed) {
+        console.log('Session refresh failed, may need to re-login')
+      }
+    }, 4 * 60 * 1000) // 4 minutes
+
+    return () => {
+      subscription.unsubscribe()
+      clearInterval(sessionCheckInterval)
+    }
+  }, [refreshSession])
 
   const getUserProfile = async (authUser: User) => {
     try {
@@ -96,6 +150,7 @@ export const useAuth = (): UseAuthReturn => {
     user,
     session,
     loading,
-    signOut
+    signOut,
+    refreshSession
   }
 } 

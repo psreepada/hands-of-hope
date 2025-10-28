@@ -5,6 +5,8 @@ interface UseOptimizedFetchOptions {
   refetchInterval?: number
   onSuccess?: (data: any) => void
   onError?: (error: any) => void
+  retry?: number // Number of retries on failure
+  retryDelay?: number // Delay between retries in ms
 }
 
 /**
@@ -21,9 +23,9 @@ export function useOptimizedFetch<T>(
   
   const abortControllerRef = useRef<AbortController | null>(null)
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
-  const { enabled = true, refetchInterval, onSuccess, onError } = options
+  const { enabled = true, refetchInterval, onSuccess, onError, retry = 2, retryDelay = 1000 } = options
 
-  const fetchData = useCallback(async () => {
+  const fetchData = useCallback(async (retryCount = 0): Promise<T | undefined> => {
     if (!enabled) return undefined
 
     // Cancel previous request
@@ -55,13 +57,21 @@ export function useOptimizedFetch<T>(
       }
       
       const error = err instanceof Error ? err : new Error('Unknown error')
+      
+      // Retry logic
+      if (retryCount < retry) {
+        console.log(`Fetch failed, retrying... (${retryCount + 1}/${retry})`)
+        await new Promise(resolve => setTimeout(resolve, retryDelay))
+        return fetchData(retryCount + 1)
+      }
+      
       setError(error)
       onError?.(error)
       throw error
     } finally {
       setLoading(false)
     }
-  }, [fetchFn, enabled, onSuccess, onError])
+  }, [fetchFn, enabled, onSuccess, onError, retry, retryDelay])
 
   // Initial fetch and dependency-based refetch
   useEffect(() => {
