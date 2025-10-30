@@ -734,9 +734,9 @@ export default function DashboardPage(): JSX.Element {
       return
     }
 
-    // Validate file size (5MB limit)
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error('Image must be less than 5MB')
+    // Validate file size (25MB limit)
+    if (file.size > 25 * 1024 * 1024) {
+      toast.error('Image must be less than 25MB')
       return
     }
 
@@ -1512,7 +1512,7 @@ export default function DashboardPage(): JSX.Element {
                     )}
                   </div>
                   <p className="text-xs text-gray-500">
-                    Upload a photo of yourself at the volunteer event as proof of participation. Max 5MB. Only PNG, JPG, and JPEG files are allowed.
+                    Upload a photo of yourself at the volunteer event as proof of participation. Max 25MB. Only PNG, JPG, and JPEG files are allowed.
                   </p>
                 </div>
 
