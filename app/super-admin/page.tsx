@@ -479,6 +479,14 @@ export default function SuperAdminPage() {
   const handleDeleteBranch = async () => {
     if (!branchToDelete) return
     
+    // Protect Innovation Academy from deletion
+    if (branchToDelete.school_name === "Innovation Academy") {
+      toast.error("❌ Innovation Academy branch cannot be deleted")
+      setShowDeleteBranchModal(false)
+      setBranchToDelete(null)
+      return
+    }
+    
     setDeleteBranchLoading(true)
     
     try {
@@ -679,6 +687,12 @@ export default function SuperAdminPage() {
 
   // Edit Branch Functions
   const openEditBranchModal = (branch: any) => {
+    // Protect Innovation Academy from editing
+    if (branch.school_name === "Innovation Academy") {
+      toast.error("❌ Innovation Academy branch is protected and cannot be edited")
+      return
+    }
+    
     setBranchToEdit(branch)
     setEditBranchFormData({
       name: branch.name || "",
@@ -729,6 +743,15 @@ export default function SuperAdminPage() {
 
   const handleEditBranch = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    // Protect Innovation Academy from editing
+    if (branchToEdit?.school_name === "Innovation Academy") {
+      toast.error("❌ Innovation Academy branch cannot be edited")
+      setShowEditBranchModal(false)
+      setBranchToEdit(null)
+      return
+    }
+    
     setEditBranchLoading(true)
 
     try {
@@ -1328,14 +1351,26 @@ export default function SuperAdminPage() {
                           {branch.join_code}
                         </span>
                       )}
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => openEditBranchModal(branch)}
-                        className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 border-blue-200"
-                      >
-                        <Settings className="h-4 w-4" />
-                      </Button>
+                      {branch.school_name === "Innovation Academy" ? (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          disabled
+                          className="text-gray-400 cursor-not-allowed border-gray-200"
+                          title="Innovation Academy branch is protected and cannot be edited"
+                        >
+                          <Settings className="h-4 w-4" />
+                        </Button>
+                      ) : (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => openEditBranchModal(branch)}
+                          className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 border-blue-200"
+                        >
+                          <Settings className="h-4 w-4" />
+                        </Button>
+                      )}
                     </div>
                   </div>
                   <div className="flex items-center gap-1 text-sm text-gray-600 mb-2">
@@ -1827,6 +1862,18 @@ export default function SuperAdminPage() {
                 </Button>
               </div>
               
+              {branchToEdit?.school_name === "Innovation Academy" && (
+                <div className="mx-6 mt-6 bg-amber-50 border border-amber-200 rounded-lg p-4">
+                  <div className="flex items-center gap-2 text-amber-800">
+                    <Shield className="h-5 w-5" />
+                    <p className="font-semibold">Protected Branch</p>
+                  </div>
+                  <p className="text-sm text-amber-700 mt-1">
+                    Innovation Academy is a protected branch and cannot be modified or deleted.
+                  </p>
+                </div>
+              )}
+              
               <form onSubmit={handleEditBranch} className="p-6 space-y-4">
                 <div>
                   <Label htmlFor="edit_name">Branch Name *</Label>
@@ -1912,20 +1959,26 @@ export default function SuperAdminPage() {
                 </div>
                 
                 <div className="flex justify-between gap-3 pt-4 border-t">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => {
-                      setBranchToDelete(branchToEdit)
-                      setShowEditBranchModal(false)
-                      setShowDeleteBranchModal(true)
-                    }}
-                    disabled={editBranchLoading}
-                    className="text-red-600 border-red-600 hover:bg-red-50"
-                  >
-                    <Trash2 className="h-4 w-4 mr-2" />
-                    Delete Branch
-                  </Button>
+                  {branchToEdit?.school_name !== "Innovation Academy" ? (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => {
+                        setBranchToDelete(branchToEdit)
+                        setShowEditBranchModal(false)
+                        setShowDeleteBranchModal(true)
+                      }}
+                      disabled={editBranchLoading}
+                      className="text-red-600 border-red-600 hover:bg-red-50"
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Delete Branch
+                    </Button>
+                  ) : (
+                    <div className="text-sm text-gray-500 italic py-2">
+                      🔒 Protected branch - cannot be deleted
+                    </div>
+                  )}
                   <div className="flex gap-3">
                     <Button
                       type="button"
