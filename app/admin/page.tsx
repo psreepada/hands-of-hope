@@ -836,7 +836,13 @@ export default function AdminPage() {
                 </div>
                 <div>
                   <p className="text-sm text-gray-600">Total Volunteer Hours</p>
-                  <p className="font-semibold text-blue-800">{branchData?.school_name === 'Innovation Academy' ? '245' : totalHours.toLocaleString()} hrs</p>
+                  <p className="font-semibold text-blue-800">
+                    {branchData?.school_name?.toLowerCase() === 'demo' 
+                      ? totalHours.toLocaleString() 
+                      : branchData?.school_name === 'Innovation Academy' 
+                      ? '245' 
+                      : totalHours.toLocaleString()} hrs
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -887,7 +893,11 @@ export default function AdminPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Users className="h-5 w-5" />
-                Branch Members ({branchData?.school_name === 'Innovation Academy' ? 120 : branchUsers.length})
+                Branch Members ({branchData?.school_name?.toLowerCase() === 'demo' 
+                  ? branchUsers.length 
+                  : branchData?.school_name === 'Innovation Academy' 
+                  ? 120 
+                  : branchUsers.length})
               </CardTitle>
               <CardDescription>
                 Manage volunteers in your branch
@@ -1037,7 +1047,11 @@ export default function AdminPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Calendar className="h-5 w-5" />
-                Branch Events ({branchData?.school_name === 'Innovation Academy' ? 18 : branchEvents.length})
+                Branch Events ({branchData?.school_name?.toLowerCase() === 'demo' 
+                  ? branchEvents.length 
+                  : branchData?.school_name === 'Innovation Academy' 
+                  ? 18 
+                  : branchEvents.length})
               </CardTitle>
               <CardDescription>
                 Events organized by your branch
