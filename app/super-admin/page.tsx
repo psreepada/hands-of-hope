@@ -985,6 +985,15 @@ export default function SuperAdminPage() {
 
   // Helper function to get manipulated stats for display (not in database)
   const getManipulatedStats = useCallback((branch: any) => {
+    // Exclude Demo branch from manipulations - show actual stats
+    if (branch.name === 'Demo' || branch.school_name === 'Demo') {
+      return {
+        users: branch.actual_user_count || 0,
+        hours: branch.actual_total_hours || 0,
+        events: branch.actual_total_events || 0
+      }
+    }
+
     // Hardcoded stats for different schools to total exactly 856 students
     const statsMap: Record<string, { users: number; hours: number; events: number }> = {
       'Innovation Academy': { users: 120, hours: 245, events: 18 },
