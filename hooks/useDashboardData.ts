@@ -54,7 +54,7 @@ export const useDashboardData = (): UseDashboardDataReturn => {
               location,
               max_participants,
               event_type,
-              event_signups!inner (
+              event_signups (
                 id,
                 user_id,
                 signup_status

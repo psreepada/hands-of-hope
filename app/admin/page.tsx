@@ -104,7 +104,7 @@ export default function AdminPage() {
         end_time: eventFormData.end_time || null,
         location: eventFormData.location || null,
         max_participants: eventFormData.max_participants ? parseInt(eventFormData.max_participants) : null,
-        hours_awarded: 0.00, // Will be set later by admin
+        hours_awarded: 0.00,
         branch_id: user?.branch_id,
         event_type: eventFormData.event_type,
         status: 'upcoming'
@@ -119,7 +119,11 @@ export default function AdminPage() {
 
       if (error) {
         console.error("❌ Event creation failed:", error)
-        toast.error("Failed to create event: " + error.message)
+        console.error("Error details:", JSON.stringify(error, null, 2))
+        console.error("Error message:", error.message)
+        console.error("Error code:", error.code)
+        console.error("Error hint:", error.hint)
+        toast.error("Failed to create event: " + (error.message || "Unknown error"))
         return
       }
 
@@ -625,7 +629,7 @@ export default function AdminPage() {
             max_participants,
             event_type,
             status,
-            event_signups!inner (
+            event_signups (
               id,
               user_id,
               signup_status
@@ -1263,7 +1267,7 @@ export default function AdminPage() {
                     <option value="volunteer">Volunteer</option>
                     <option value="fundraising">Fundraising</option>
                     <option value="awareness">Awareness</option>
-                    <option value="community">Community</option>
+                    <option value="social">Social</option>
                   </select>
                 </div>
 

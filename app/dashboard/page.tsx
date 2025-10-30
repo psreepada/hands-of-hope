@@ -445,7 +445,7 @@ export default function DashboardPage(): JSX.Element {
             max_participants,
             event_type,
             status,
-            event_signups!inner (
+            event_signups (
               id,
               user_id,
               signup_status
